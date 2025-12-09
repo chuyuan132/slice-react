@@ -10,10 +10,15 @@ export default defineConfig([
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
     plugins: { js, prettier: eslintPluginPrettier },
     extends: ['js/recommended', eslintConfigPrettier],
-    languageOptions: { globals: {...globals.browser, ...globals.node} },
+    languageOptions: { globals: { ...globals.browser, ...globals.node } },
     rules: {
       'prettier/prettier': 'error'
     }
   },
-  tseslint.configs.recommended
+  tseslint.configs.recommended,
+  {
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off'
+    }
+  }
 ]);

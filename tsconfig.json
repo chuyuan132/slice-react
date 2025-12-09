@@ -1,7 +1,12 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "moduleResolution": "nodenext",
+    "module": "eSNext",
+    "moduleResolution": "node",
     "esModuleInterop": true,
+    "baseUrl": "./packages",
+    "paths": {
+      "shared/*": ["packages/shared/*"],
+    }
   }
 }
