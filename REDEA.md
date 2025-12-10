@@ -1,0 +1,4 @@
+react编译 -> 运行时 过程揭秘：
+1、jsx语法经过babel编译后，会变成 jsx函数的调用，返回一个ReactElement对象结构
+2、ReactElement对象结构不满足继续节点之间的关系，react-reconclier协调器运行时，会在ReactElement对象结构和DOM结构之间生成一个新的结构fiber结构
+3、定义fiber结构，为什么要用类定义而不是工厂函数定义呢？因为fiber节点在运行时会被频繁创建，使用v8引擎的隐藏类特性和内联缓存机制可以提供创建性能

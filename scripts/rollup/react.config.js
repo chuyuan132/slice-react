@@ -32,11 +32,18 @@ export default [
   },
   {
     input: `${pkgPath}/src/jsx.ts`,
-    output: {
-      file: `${distPkgPath}/jsx-runtime.js`,
-      name: 'jsx-runtime',
-      format: 'umd'
-    },
+    output: [
+      {
+        file: `${distPkgPath}/jsx-runtime.js`,
+        name: 'jsx-runtime',
+        format: 'umd'
+      },
+      {
+        file: `${distPkgPath}/jsx-dev-runtime.js`,
+        name: 'jsx-dev-runtime',
+        format: 'umd'
+      }
+    ],
     plugins: getBaseRollupPlugins()
   }
 ];
