@@ -6,7 +6,8 @@
     "esModuleInterop": true,
     "baseUrl": "./packages",
     "paths": {
-      "shared/*": ["packages/shared/*"],
+      "shared/*": ["shared/*"],
+      "hostConfig": ["react-reconciler/src/hostConfig"],
     }
   }
 }
