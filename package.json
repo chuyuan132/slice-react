@@ -13,7 +13,6 @@
   "license": "ISC",
   "packageManager": "pnpm@10.17.1",
   "dependencies": {
-    "react": "link:../../../Library/pnpm/global/5/node_modules/react",
     "shared": "workspace:*"
   },
   "devDependencies": {
