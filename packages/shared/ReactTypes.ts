@@ -9,7 +9,6 @@ export interface ReactElementType {
   type: Type;
   ref: Ref;
   props: Props;
-  __mark: string;
 }
 
 export type Action<T> = T | ((preState: T) => T);
