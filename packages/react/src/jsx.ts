@@ -7,7 +7,7 @@ const ReactElement = (type: Type, key: Key, ref: Ref, props: Props) => {
     type,
     key,
     ref,
-    props,
+    props
   };
   return element;
 };
@@ -32,7 +32,7 @@ export const jsx = (type: Type, config: any, ...maybeChildren: any): ReactElemen
     if (Object.prototype.hasOwnProperty.call(config, propName)) {
       props[propName] = config[propName];
     }
-    console.log('jsx maybeChildren is',maybeChildren)
+    console.log('jsx maybeChildren is', maybeChildren);
     return ReactElement(type, key, ref, props);
   }
 };
@@ -57,7 +57,7 @@ export const jsxDEV = (type: Type, config: any, ...maybeChildren: any): ReactEle
     if (Object.prototype.hasOwnProperty.call(config, propName)) {
       props[propName] = config[propName];
     }
-    console.log('jsxDEV maybeChildren is',maybeChildren)
+    console.log('jsxDEV maybeChildren is', maybeChildren);
     return ReactElement(type, key, ref, props);
   }
 };

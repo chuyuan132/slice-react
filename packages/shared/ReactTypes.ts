@@ -11,4 +11,4 @@ export interface ReactElementType {
   props: Props;
 }
 
-export type Action<T> = T | ((preState: T) => T);
+
