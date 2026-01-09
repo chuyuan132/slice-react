@@ -76,6 +76,7 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
 	wip.memoizedProps = current.memoizedProps;
 	wip.memoizedState = current.memoizedState;
 	wip.ref = current.ref;
+  wip.key = current.key;
 
   return wip;
 }
