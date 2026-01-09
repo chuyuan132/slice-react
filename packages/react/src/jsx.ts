@@ -12,52 +12,32 @@ const ReactElement = (type: Type, key: Key, ref: Ref, props: Props) => {
   return element;
 };
 
-export const jsx = (type: Type, config: any, ...maybeChildren: any): ReactElementType => {
+export const jsx = (type: Type, config: any, maybeKey: any): ReactElementType => {
   let key: Key = null;
   const props: Props = {};
   let ref: Ref = null;
+  if(maybeKey) {
+    key = '' + maybeKey;
+  }
   for (const propName in config) {
+    const val = config[propName]
     if (propName === 'key') {
-      if (config[propName] !== undefined) {
-        key = config[propName];
+      if (val !== undefined) {
+        key = '' + val;
       }
       continue;
     }
     if (propName === 'ref') {
-      if (propName === 'ref') {
-        ref = config[propName];
+      if (val !== undefined) {
+        ref = val;
       }
       continue;
     }
     if (Object.prototype.hasOwnProperty.call(config, propName)) {
-      props[propName] = config[propName];
+      props[propName] = val;
     }
-    console.log('jsx maybeChildren is', maybeChildren);
     return ReactElement(type, key, ref, props);
   }
 };
 
-export const jsxDEV = (type: Type, config: any, ...maybeChildren: any): ReactElementType => {
-  let key: Key = null;
-  const props: Props = {};
-  let ref: Ref = null;
-  for (const propName in config) {
-    if (propName === 'key') {
-      if (config[propName] !== undefined) {
-        key = config[propName];
-      }
-      continue;
-    }
-    if (propName === 'ref') {
-      if (propName === 'ref') {
-        ref = config[propName];
-      }
-      continue;
-    }
-    if (Object.prototype.hasOwnProperty.call(config, propName)) {
-      props[propName] = config[propName];
-    }
-    console.log('jsxDEV maybeChildren is', maybeChildren);
-    return ReactElement(type, key, ref, props);
-  }
-};
+export const jsxDEV = jsx;

@@ -3,20 +3,15 @@ import { WorkTag } from './workTags';
 import { Container } from 'hostConfig';
 import { Flag, NotFlag } from './fiberFlags';
 
-/**
- * 要实现ReactElement 与 FiberNode的对应
- * tag 与 type 是原值与值的对应
- * props需要分成两个，一个是上次的props，一个是要更新的props
- */
 export class FiberNode {
-  type: Type | null;
+  type: Type;
   tag: WorkTag;
   pendingProps: Props;
   key: Key;
   stateNode: any;
-  return: FiberNode | null;
-  sibling: FiberNode | null;
-  child: FiberNode | null;
+  return: FiberNode;
+  sibling: FiberNode;
+  child: FiberNode;
   index: number;
   ref: Ref;
   memoizedProps: Props;
@@ -53,10 +48,34 @@ export class FiberRootNode {
   container: Container;
   fiber: FiberNode;
   current: FiberNode;
+  finishedWork:FiberNode;
 
   constructor(container: Container, fiber: FiberNode) {
     this.container = container;
     this.current = fiber;
+    this.finishedWork = null;
     fiber.stateNode = this;
   }
+}
+
+export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
+  let wip = current.alternate;
+  if(wip) {
+    wip.flags = NotFlag
+    wip.pendingProps = pendingProps;
+  } else {
+    wip = new FiberNode(current.tag, {}, current.key);
+
+    wip.stateNode = current.stateNode;
+    wip.alternate = current;
+    current.alternate = wip;
+  }
+  wip.type = current.type;
+	wip.updateQueue = current.updateQueue;
+	wip.child = current.child;
+	wip.memoizedProps = current.memoizedProps;
+	wip.memoizedState = current.memoizedState;
+	wip.ref = current.ref;
+
+  return wip;
 }
