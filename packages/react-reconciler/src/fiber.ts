@@ -1,5 +1,5 @@
-import { Key, Props, Ref, Type } from 'shared/ReactTypes';
-import { WorkTag } from './workTags';
+import { Key, Props, ReactElementType, Ref, Type } from 'shared/ReactTypes';
+import { FunctionComponent, HostComponent, WorkTag } from './workTags';
 import { Container } from 'hostConfig';
 import { Flag, NotFlag } from './fiberFlags';
 
@@ -65,7 +65,6 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
     wip.pendingProps = pendingProps;
   } else {
     wip = new FiberNode(current.tag, {}, current.key);
-
     wip.stateNode = current.stateNode;
     wip.alternate = current;
     current.alternate = wip;
@@ -77,6 +76,19 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
 	wip.memoizedState = current.memoizedState;
 	wip.ref = current.ref;
   wip.key = current.key;
-
   return wip;
+}
+
+export function createFiberFromElement(element: ReactElementType) {
+  const { type, props, ref, key } = element;
+  let tag:WorkTag = FunctionComponent;
+  if(typeof type === 'string') {
+    tag = HostComponent
+  } else if(typeof type !== 'function' && __DEV__) {
+    console.error('未定义的type类型', element)
+  }
+  const fiber = new FiberNode(tag, props, key)
+  fiber.type = type;
+  fiber.ref = ref;
+  return fiber;
 }

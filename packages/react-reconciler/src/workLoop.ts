@@ -1,9 +1,9 @@
-import { FiberNode, FiberRootNode } from './fiber';
+import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
 import { Props, ReactElementType } from 'shared/ReactTypes';
 import { NotFlag } from './fiberFlags';
 import { HostComponent, HostRoot, HostText } from './workTags';
 import { processUpdateQueue, UpdateQueue } from './updateQueue';
-import { mountReconcilerChildFibers, reconcilerChildFibers } from './childReconciler';
+import { mountReconcilerChildFibers, reconcilerChildFibers } from './childFiber';
 import { comleteWork } from './comleteWork';
 import { beginWork } from './beginWork';
 
@@ -14,13 +14,18 @@ function prepareFreshStack(root: FiberRootNode) {
 }
 
 function completeUnitOfWork(fiber: FiberNode) {
-  comleteWork(fiber);
-  const sibling = fiber.sibling;
-  if(sibling) {
-    workInProgress = sibling
-  } else {
-    workInProgress = fiber.return;
-  }
+  let node = fiber;
+  do {
+    comleteWork(node);
+    const sibling = node.sibling;
+    if(sibling) {
+      workInProgress = sibling
+      return;
+    } else {
+      node = node.return;
+      workInProgress = node;
+    }
+  } while(node)
 }
 
 function preformUnitOfWork(fiber:FiberNode) {

@@ -6,7 +6,7 @@ export interface Update<T> {
 
 export interface UpdateQueue<T> {
   share: {
-    pedding: Update<T> | null;
+    pending: Update<T> | null;
   };
 }
 
@@ -28,7 +28,7 @@ export const createUpdateQueue = () => {
 
 // 推入 update queue
 export const enQueueUpdate = <T>(updateQueue: UpdateQueue<T>, update: Update<T>) => {
-  updateQueue.share.pedding = update;
+  updateQueue.share.pending = update;
 };
 
 // 消费update
