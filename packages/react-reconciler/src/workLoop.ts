@@ -1,9 +1,5 @@
 import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
-import { Props, ReactElementType } from 'shared/ReactTypes';
-import { NotFlag } from './fiberFlags';
-import { HostComponent, HostRoot, HostText } from './workTags';
-import { processUpdateQueue, UpdateQueue } from './updateQueue';
-import { mountReconcilerChildFibers, reconcilerChildFibers } from './childFiber';
+import { HostRoot } from './workTags';
 import { comleteWork } from './comleteWork';
 import { beginWork } from './beginWork';
 
@@ -18,20 +14,20 @@ function completeUnitOfWork(fiber: FiberNode) {
   do {
     comleteWork(node);
     const sibling = node.sibling;
-    if(sibling) {
+    if(sibling !== null) {
       workInProgress = sibling
       return;
     } else {
       node = node.return;
       workInProgress = node;
     }
-  } while(node)
+  } while(node !== null)
 }
 
 function preformUnitOfWork(fiber:FiberNode) {
   const next = beginWork(fiber)
   fiber.memoizedProps = fiber.pendingProps;
-  if(next) {
+  if(next !== null) {
     workInProgress = next;
   } else {
     completeUnitOfWork(fiber)

@@ -1,4 +1,3 @@
-import { log } from "console";
 import { ReactElementType } from "shared/ReactTypes";
 import { createFiberFromElement, FiberNode } from "./fiber";
 import { REACT_ELEMENT_TYPE } from "shared/ReactSymbol";
@@ -21,21 +20,21 @@ function ChildReconciler(shouldTrackEffect: boolean) {
 
 
   function placeSingleElement(fiber: FiberNode) {
-    if(shouldTrackEffect && !fiber.alternate) {
+    if(shouldTrackEffect && fiber.alternate == null) {
       fiber.flags |= Placement
     }
     return fiber;
   }
 
 
-  return (wip: FiberNode, currentFiber:FiberNode | null, newChildren:ReactElementType | string | number | null) => {
-    if(typeof newChildren === 'object' && newChildren) {
+  return (wip: FiberNode, currentFiber:FiberNode | null, newChildren:ReactElementType | string | number) => {
+    if(typeof newChildren === 'object' && newChildren !== null) {
       switch(newChildren.$$typeof) {
         case REACT_ELEMENT_TYPE:
           return placeSingleElement(reconcilerSingleElement(wip, currentFiber, newChildren));
         default:
           if(__DEV__) {
-            console.error('未实现的reconciler类型', newChildren);
+            console.warn('【beginWork的子fiber创建流程】无法识别reactElement类型，无法生成子fiber', newChildren);
           }
       }
     }
@@ -43,7 +42,7 @@ function ChildReconciler(shouldTrackEffect: boolean) {
       return placeSingleElement(reconcilerSingleTextElement(wip, currentFiber, newChildren))
     }
     if(__DEV__) {
-      console.error('未实现的reconciler类型', newChildren);
+      console.warn('【beginWork的子fiber创建流程】非string或number，无法生成子fiber', newChildren);
     }
 
     return wip;

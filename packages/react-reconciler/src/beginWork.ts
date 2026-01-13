@@ -55,6 +55,7 @@ function reconclierChildren(wip: FiberNode, children?: ReactElementType) {
 }
 
 function reconcilerChildFiber(wip: FiberNode, current?:FiberNode, children?:ReactElementType) {
+  // todo: 目前仅处理了子节点的生成，未处理兄弟节点
   if(current) {
     // update
     wip.child = reconcilerChildFibers(wip, current, children);

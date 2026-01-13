@@ -1,5 +1,7 @@
+import { appendInitialChild, createInstance, createTextInstance } from "hostConfig";
 import { FiberNode } from "./fiber";
 import { HostComponent, HostRoot, HostText } from "./workTags";
+import { NotFlag } from "./fiberFlags";
 
 /**
  * 递归中的归，从最深层的节点一级级挂载就好
@@ -11,18 +13,28 @@ export function comleteWork(fiber: FiberNode) {
   const current = fiber.alternate;
   switch(fiber.tag) {
     case HostComponent:
-      if(current && fiber.stateNode) {
-        // update,不做处理
+      if(current !== null && fiber.stateNode !== null) {
+        // update,暂不做处理
       } else {
         // 根据宿主环境生成实例
-        const instance = null;
-        // 把fiber的child挂载到实例上
+        const instance = createInstance(fiber);
         appendAllChildren(instance, fiber)
+        fiber.stateNode = instance;
       }
+      bubblePropertity(fiber)
       break;
     case HostText:
+      if(current !== null && fiber.stateNode !== null) {
+        // update,暂不做处理
+      } else {
+        // 根据宿主环境生成实例
+        const instance = createTextInstance(fiber.pendingProps.content);
+        fiber.stateNode = instance
+      }
+      bubblePropertity(fiber)
       break;
     case HostRoot:
+      bubblePropertity(fiber)
       break;
     default:
       if(__DEV__) {
@@ -31,14 +43,36 @@ export function comleteWork(fiber: FiberNode) {
   }
 }
 
-function appendAllChildren(oarent:any, fiber: FiberNode) {
-  const node = fiber.child;
-  while(node) {
+function appendAllChildren(parent:any, fiber: FiberNode) {
+  let node = fiber.child;
+  while(node !== null) {
     if(node.tag === HostComponent || node.tag === HostText) {
       // 挂载操作
-    } else {
-
+      appendInitialChild(parent, fiber.stateNode)
+    } else if(node.child !== null){
+      node = node.child
+      continue;
     }
-  }
 
+    if(node === fiber) return;
+
+    while(node.sibling == null) {
+      if(node.return == null || node.return == fiber) {
+        return;
+      }
+      node = node.return;
+    }
+    node = node.sibling;
+  }
+}
+
+function bubblePropertity(fiber:FiberNode) {
+  let subTreeFlags = NotFlag;
+  let node = fiber.child;
+  while(node !== null) {
+    subTreeFlags |= node.subTreeFlags;
+    subTreeFlags |= node.flags;
+    node = node.child;
+  }
+  fiber.subTreeFlags |= subTreeFlags;
 }

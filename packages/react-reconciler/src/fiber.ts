@@ -19,6 +19,7 @@ export class FiberNode {
   alternate: FiberNode | null;
   flags: Flag;
   memoizedState: any;
+  subTreeFlags: Flag;
 
   constructor(tag: WorkTag, pendingProps: Props, key: Key) {
     // 实例属性
@@ -40,6 +41,7 @@ export class FiberNode {
     this.updateQueue = null;
     this.alternate = null;
     this.flags = NotFlag;
+    this.subTreeFlags = NotFlag;
     this.memoizedState = null;
   }
 }
@@ -85,7 +87,7 @@ export function createFiberFromElement(element: ReactElementType) {
   if(typeof type === 'string') {
     tag = HostComponent
   } else if(typeof type !== 'function' && __DEV__) {
-    console.error('未定义的type类型', element)
+    console.warn('未定义的type类型', element)
   }
   const fiber = new FiberNode(tag, props, key)
   fiber.type = type;
