@@ -2,6 +2,7 @@ import { createWorkInProgress, FiberNode, FiberRootNode } from './fiber';
 import { HostRoot } from './workTags';
 import { comleteWork } from './comleteWork';
 import { beginWork } from './beginWork';
+import { commitRoot } from './commitWork';
 
 let workInProgress: FiberNode | null = null;
 
@@ -44,6 +45,8 @@ function renterRoot(root: FiberRootNode) {
   prepareFreshStack(root);
   try {
     workLook()
+    root.finishedWork = root.current.alternate
+    commitRoot(root)
   } catch (error) {
     if(__DEV__) {
       console.error('workLook失败')
