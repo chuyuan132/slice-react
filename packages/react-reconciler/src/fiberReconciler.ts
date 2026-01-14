@@ -6,11 +6,13 @@ import { HostRoot } from './workTags';
 import { scheduleUpdateOnFiber } from './workLoop';
 
 export const createContainer = (container: Container) => {
+  console.log('container', container);
+
   const hostRootFiber = new FiberNode(HostRoot, {}, null);
   const root = new FiberRootNode(container, hostRootFiber);
   hostRootFiber.updateQueue = createUpdateQueue();
   if (__DEV__) {
-    console.warn('createContainer: create hostRootFiber and fiberRootNode complete!');
+    console.log('createContainer: create hostRootFiber and fiberRootNode complete!');
   }
   return root;
 };
@@ -21,7 +23,7 @@ export const updateContainer = (element: ReactElementType, root: FiberRootNode) 
   const update = createUpdate<ReactElementType | null>(element);
   enQueueUpdate(updateQueue, update);
   if (__DEV__) {
-    console.warn('updateContainer: update ReactElement in hostRootFiber updateQueue complete!');
+    console.log('updateContainer: update ReactElement in hostRootFiber updateQueue complete!');
   }
   scheduleUpdateOnFiber(hostRootFiber);
   return element;

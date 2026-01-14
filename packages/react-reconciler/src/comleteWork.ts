@@ -47,7 +47,7 @@ function appendAllChildren(parent: any, fiber: FiberNode) {
   while (node !== null) {
     if (node.tag === HostComponent || node.tag === HostText) {
       // 挂载操作
-      appendInitialChild(parent, fiber.stateNode);
+      appendInitialChild(parent, node.stateNode);
     } else if (node.child !== null) {
       node = node.child;
       continue;

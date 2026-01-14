@@ -10,5 +10,6 @@
       "shared/*": ["shared/*"],
       "hostConfig": ["react-dom/src/hostConfig"],
     }
-  }
+  },
+  "include": ["packages"]
 }

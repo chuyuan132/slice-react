@@ -56,8 +56,8 @@ function renterRoot(root: FiberRootNode) {
     workLook();
     root.finishedWork = root.current.alternate;
     if (__DEV__) {
-      console.warn('workLook complete, finishedWork: ', root.finishedWork);
-      console.warn('commitRoot start');
+      console.log('workLook complete, finishedWork: ', root.finishedWork);
+      console.log('commitRoot start');
     }
     commitRoot(root);
   } catch (err) {

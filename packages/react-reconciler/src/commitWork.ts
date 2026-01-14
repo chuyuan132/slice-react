@@ -89,10 +89,7 @@ function getHostParent(fiber: FiberNode) {
     } else if (parent.tag === HostRoot) {
       return (parent.stateNode as FiberRootNode).container;
     }
-    parent = fiber.return;
-  }
-  if (__DEV__) {
-    console.log('找不到父parent');
+    parent = parent.return;
   }
   return null;
 }

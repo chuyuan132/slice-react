@@ -22,7 +22,7 @@ export function beginWork(fiber: FiberNode) {
       return null;
     default:
       if (__DEV__) {
-        console.error('beginWork未兼容的类型', fiber.tag);
+        console.log('beginWork未兼容的类型', fiber.tag);
       }
   }
 }

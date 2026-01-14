@@ -39,7 +39,7 @@ function ChildReconciler(shouldTrackEffect: boolean) {
           return placeSingleElement(reconcilerSingleElement(wip, currentFiber, newChildren));
         default:
           if (__DEV__) {
-            console.warn('【beginWork的子fiber创建流程】无法识别reactElement类型，无法生成子fiber', newChildren);
+            console.log('【beginWork的子fiber创建流程】无法识别reactElement类型，无法生成子fiber', newChildren);
           }
       }
     }
@@ -47,7 +47,7 @@ function ChildReconciler(shouldTrackEffect: boolean) {
       return placeSingleElement(reconcilerSingleTextElement(wip, currentFiber, newChildren));
     }
     if (__DEV__) {
-      console.warn('【beginWork的子fiber创建流程】非string或number，无法生成子fiber', newChildren);
+      console.log('【beginWork的子fiber创建流程】非string或number，无法生成子fiber', newChildren);
     }
 
     return null;
