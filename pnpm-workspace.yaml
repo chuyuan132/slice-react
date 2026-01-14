@@ -3,3 +3,4 @@ packages:
 
 overrides:
   react: link:../../../Library/pnpm/global/5/node_modules/react
+  react-dom: link:../../../Library/pnpm/global/5/node_modules/react-dom

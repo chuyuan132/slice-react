@@ -1,7 +1,7 @@
-import { appendInitialChild, createInstance, createTextInstance } from "hostConfig";
-import { FiberNode } from "./fiber";
-import { HostComponent, HostRoot, HostText } from "./workTags";
-import { NotFlag } from "./fiberFlags";
+import { appendInitialChild, createInstance, createTextInstance } from 'hostConfig';
+import { FiberNode } from './fiber';
+import { HostComponent, HostRoot, HostText } from './workTags';
+import { NotFlag } from './fiberFlags';
 
 /**
  * 递归中的归，从最深层的节点一级级挂载就好
@@ -9,55 +9,54 @@ import { NotFlag } from "./fiberFlags";
  * 打上update标记
  * @param fiber
  */
-export function comleteWork(fiber: FiberNode) {
+export function completeWork(fiber: FiberNode) {
   const current = fiber.alternate;
-  switch(fiber.tag) {
+  switch (fiber.tag) {
     case HostComponent:
-      if(current !== null && fiber.stateNode !== null) {
+      if (current !== null && fiber.stateNode !== null) {
         // update,暂不做处理
       } else {
         // 根据宿主环境生成实例
-        const instance = createInstance(fiber);
-        appendAllChildren(instance, fiber)
+        const instance = createInstance(fiber.type);
+        appendAllChildren(instance, fiber);
         fiber.stateNode = instance;
       }
-      bubblePropertity(fiber)
+      bubblePropertity(fiber);
       break;
     case HostText:
-      if(current !== null && fiber.stateNode !== null) {
+      if (current !== null && fiber.stateNode !== null) {
         // update,暂不做处理
       } else {
         // 根据宿主环境生成实例
-        const instance = createTextInstance(fiber.pendingProps.content);
-        fiber.stateNode = instance
+        fiber.stateNode = createTextInstance(fiber.pendingProps.content);
       }
-      bubblePropertity(fiber)
+      bubblePropertity(fiber);
       break;
     case HostRoot:
-      bubblePropertity(fiber)
+      bubblePropertity(fiber);
       break;
     default:
-      if(__DEV__) {
-        console.error('completeWork不支持的类型',fiber)
+      if (__DEV__) {
+        console.error('completeWork不支持的类型', fiber);
       }
   }
 }
 
-function appendAllChildren(parent:any, fiber: FiberNode) {
+function appendAllChildren(parent: any, fiber: FiberNode) {
   let node = fiber.child;
-  while(node !== null) {
-    if(node.tag === HostComponent || node.tag === HostText) {
+  while (node !== null) {
+    if (node.tag === HostComponent || node.tag === HostText) {
       // 挂载操作
-      appendInitialChild(parent, fiber.stateNode)
-    } else if(node.child !== null){
-      node = node.child
+      appendInitialChild(parent, fiber.stateNode);
+    } else if (node.child !== null) {
+      node = node.child;
       continue;
     }
 
-    if(node === fiber) return;
+    if (node === fiber) return;
 
-    while(node.sibling == null) {
-      if(node.return == null || node.return == fiber) {
+    while (node.sibling == null) {
+      if (node.return == null || node.return == fiber) {
         return;
       }
       node = node.return;
@@ -66,10 +65,10 @@ function appendAllChildren(parent:any, fiber: FiberNode) {
   }
 }
 
-function bubblePropertity(fiber:FiberNode) {
+function bubblePropertity(fiber: FiberNode) {
   let subTreeFlags = NotFlag;
   let node = fiber.child;
-  while(node !== null) {
+  while (node !== null) {
     subTreeFlags |= node.subTreeFlags;
     subTreeFlags |= node.flags;
     node = node.child;

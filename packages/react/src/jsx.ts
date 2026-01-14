@@ -16,11 +16,11 @@ export const jsx = (type: Type, config: any, maybeKey: any): ReactElementType =>
   let key: Key = null;
   const props: Props = {};
   let ref: Ref = null;
-  if(maybeKey) {
+  if (maybeKey) {
     key = '' + maybeKey;
   }
   for (const propName in config) {
-    const val = config[propName]
+    const val = config[propName];
     if (propName === 'key') {
       if (val !== undefined) {
         key = '' + val;

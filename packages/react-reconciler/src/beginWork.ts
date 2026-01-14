@@ -1,8 +1,8 @@
-import { ReactElementType } from "shared/ReactTypes";
-import { FiberNode } from "./fiber";
-import { processUpdateQueue, UpdateQueue } from "./updateQueue";
-import { HostComponent, HostRoot, HostText } from "./workTags";
-import { mountChildFibers, reconcilerChildFibers } from "./childFiber";
+import { ReactElementType } from 'shared/ReactTypes';
+import { FiberNode } from './fiber';
+import { processUpdateQueue, UpdateQueue } from './updateQueue';
+import { HostComponent, HostRoot, HostText } from './workTags';
+import { mountChildFibers, reconcilerChildFibers } from './childFiber';
 
 /**
  * 递归中的递
@@ -11,19 +11,19 @@ import { mountChildFibers, reconcilerChildFibers } from "./childFiber";
  * @param fiber
  * @returns
  */
-export function beginWork(fiber:FiberNode) {
+export function beginWork(fiber: FiberNode) {
   // 需要区分fiber的tag类型进行额外的处理
-  switch(fiber.tag) {
+  switch (fiber.tag) {
     case HostRoot:
       return updateHostRoot(fiber);
     case HostComponent:
-      return updateHostComponent(fiber)
+      return updateHostComponent(fiber);
     case HostText:
       return null;
     default:
-    if(__DEV__) {
-      console.error('beginWork没处理的类型', fiber.tag)
-    }
+      if (__DEV__) {
+        console.error('beginWork未兼容的类型', fiber.tag);
+      }
   }
 }
 
@@ -32,7 +32,7 @@ function updateHostRoot(fiber: FiberNode) {
   const baseState = fiber.memoizedState;
   const updateQueue = fiber.updateQueue as UpdateQueue<ReactElementType>;
   const pending = updateQueue.share.pending;
-  const { memoizedState } = processUpdateQueue(baseState, pending)
+  const { memoizedState } = processUpdateQueue(baseState, pending);
   fiber.memoizedState = memoizedState;
   updateQueue.share.pending = null;
   // 创造子fiber
@@ -41,26 +41,26 @@ function updateHostRoot(fiber: FiberNode) {
   return fiber.child;
 }
 
-function updateHostComponent(fiber:FiberNode) {
+function updateHostComponent(fiber: FiberNode) {
   // 创造子fiber
   const pendingProps = fiber.pendingProps;
-  const nextChildren = pendingProps.child;
+  const nextChildren = pendingProps.children;
   reconclierChildren(fiber, nextChildren);
   return fiber.child;
 }
 
 function reconclierChildren(wip: FiberNode, children?: ReactElementType) {
   const current = wip.alternate;
-  reconcilerChildFiber(wip, current?.child, children)
+  reconcilerChildFiber(wip, current?.child, children);
 }
 
-function reconcilerChildFiber(wip: FiberNode, current?:FiberNode, children?:ReactElementType) {
+function reconcilerChildFiber(wip: FiberNode, current?: FiberNode, children?: ReactElementType) {
   // todo: 目前仅处理了子节点的生成，未处理兄弟节点
-  if(current) {
+  if (current) {
     // update
     wip.child = reconcilerChildFibers(wip, current, children);
   } else {
     // mount
-    wip.child = mountChildFibers(wip, null, children)
+    wip.child = mountChildFibers(wip, null, children);
   }
 }

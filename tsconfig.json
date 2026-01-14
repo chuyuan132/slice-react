@@ -8,7 +8,7 @@
     "baseUrl": "./packages",
     "paths": {
       "shared/*": ["shared/*"],
-      "hostConfig": ["react-reconciler/src/hostConfig"],
+      "hostConfig": ["react-dom/src/hostConfig"],
     }
   }
 }
