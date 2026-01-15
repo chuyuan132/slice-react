@@ -1,5 +1,5 @@
-import react from 'react';
-import reactDOM from 'react-dom';
+import react from '../../packages/react';
+import reactDOM from '../../packages/react-dom';
 const jsx = (
   <div>
     <span>hello world</span>

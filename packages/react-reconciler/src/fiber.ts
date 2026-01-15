@@ -65,7 +65,7 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
     wip.flags = NotFlag;
     wip.pendingProps = pendingProps;
   } else {
-    wip = new FiberNode(current.tag, {}, current.key);
+    wip = new FiberNode(current.tag, pendingProps, current.key);
     wip.stateNode = current.stateNode;
     wip.alternate = current;
     current.alternate = wip;

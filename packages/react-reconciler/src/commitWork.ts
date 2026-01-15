@@ -2,8 +2,6 @@ import { appendChildToContainer, Container } from 'hostConfig';
 import { FiberNode, FiberRootNode } from './fiber';
 import { ChildDeletion, MutationMark, NotFlag, Placement, Update } from './fiberFlags';
 import { HostComponent, HostRoot, HostText } from './workTags';
-import { log } from 'console';
-
 /**
  * commit分三个子阶段
  * beforeMutation阶段
@@ -60,7 +58,6 @@ function commitMutationEffectsOnFiber(finishedWork: FiberNode) {
   const { flags } = finishedWork;
   if ((flags & Placement) !== NotFlag) {
     // 新增
-    log(3)
     commitPlacement(finishedWork);
     finishedWork.flags &= ~Placement;
   }

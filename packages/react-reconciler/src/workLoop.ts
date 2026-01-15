@@ -14,7 +14,7 @@ function prepareFreshStack(root: FiberRootNode) {
 }
 
 function completeUnitOfWork(fiber: FiberNode) {
-  let node = fiber;
+  let node: FiberNode | null = fiber;
   do {
     completeWork(node);
     const sibling = node.sibling;

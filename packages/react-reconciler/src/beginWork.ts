@@ -24,6 +24,7 @@ export function beginWork(fiber: FiberNode) {
       if (__DEV__) {
         console.log('beginWork未兼容的类型', fiber.tag);
       }
+      return null;
   }
 }
 
@@ -51,16 +52,12 @@ function updateHostComponent(fiber: FiberNode) {
 
 function reconclierChildren(wip: FiberNode, children: ReactElementType) {
   const current = wip.alternate;
-  reconcilerChildFiber(wip, current?.child || null, children);
-}
-
-function reconcilerChildFiber(wip: FiberNode, current: FiberNode | null, children: ReactElementType) {
-  // todo: 目前仅处理了子节点的生成，未处理兄弟节点
-  if (current) {
+  if (wip.alternate) {
     // update
-    wip.child = reconcilerChildFibers(wip, current, children);
+    wip.child = reconcilerChildFibers(wip, current?.child || null, children);
   } else {
     // mount
     wip.child = mountChildFibers(wip, null, children);
   }
 }
+

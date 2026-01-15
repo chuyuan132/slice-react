@@ -7,7 +7,7 @@
     "lint": "eslint --ext .ts,.json,.tsx --fix ./packages",
     "prepare": "husky",
     "build:dev": "rm -rf dist && rollup --bundleConfigAsCjs --config ./scripts/rollup/dev.config.js",
-    "demo": "vite serve ./play/demo/test-fc --config ./scripts/vite/vite.config.js --force"
+    "demo": "vite serve demo/test-fc --config ./scripts/vite/vite.config.js --force"
   },
   "keywords": [],
   "author": "",
