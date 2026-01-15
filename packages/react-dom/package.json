@@ -10,9 +10,6 @@
     "react-reconciler": "workspace:*",
     "shared": "workspace:*"
   },
-  "peerDependencies": {
-    "react": "workspace:*"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",

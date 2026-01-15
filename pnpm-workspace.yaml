@@ -2,5 +2,6 @@ packages:
   - packages/*
 
 overrides:
+  list: link:../../../Library/pnpm/global/5/node_modules/list
   react: link:../../../Library/pnpm/global/5/node_modules/react
   react-dom: link:../../../Library/pnpm/global/5/node_modules/react-dom
