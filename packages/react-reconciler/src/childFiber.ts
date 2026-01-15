@@ -8,7 +8,7 @@ function ChildReconciler(shouldTrackEffect: boolean) {
   function reconcilerSingleElement(
     returnFiber: FiberNode,
     currentFiber: FiberNode | null,
-    newChildren?: ReactElementType
+    newChildren: ReactElementType
   ) {
     const fiber = createFiberFromElement(newChildren);
     fiber.return = returnFiber;

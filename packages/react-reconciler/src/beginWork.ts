@@ -49,12 +49,12 @@ function updateHostComponent(fiber: FiberNode) {
   return fiber.child;
 }
 
-function reconclierChildren(wip: FiberNode, children?: ReactElementType) {
+function reconclierChildren(wip: FiberNode, children: ReactElementType) {
   const current = wip.alternate;
-  reconcilerChildFiber(wip, current?.child, children);
+  reconcilerChildFiber(wip, current?.child || null, children);
 }
 
-function reconcilerChildFiber(wip: FiberNode, current?: FiberNode, children?: ReactElementType) {
+function reconcilerChildFiber(wip: FiberNode, current: FiberNode | null, children: ReactElementType) {
   // todo: 目前仅处理了子节点的生成，未处理兄弟节点
   if (current) {
     // update

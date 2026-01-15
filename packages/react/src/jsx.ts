@@ -36,8 +36,8 @@ export const jsx = (type: Type, config: any, maybeKey: any): ReactElementType =>
     if (Object.prototype.hasOwnProperty.call(config, propName)) {
       props[propName] = val;
     }
-    return ReactElement(type, key, ref, props);
   }
+  return ReactElement(type, key, ref, props);
 };
 
 export const jsxDEV = jsx;

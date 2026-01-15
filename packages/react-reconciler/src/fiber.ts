@@ -9,9 +9,9 @@ export class FiberNode {
   pendingProps: Props;
   key: Key;
   stateNode: any;
-  return: FiberNode;
-  sibling: FiberNode;
-  child: FiberNode;
+  return: FiberNode | null;
+  sibling: FiberNode | null;
+  child: FiberNode | null;
   index: number;
   ref: Ref;
   memoizedProps: Props;
@@ -48,9 +48,8 @@ export class FiberNode {
 
 export class FiberRootNode {
   container: Container;
-  fiber: FiberNode;
   current: FiberNode;
-  finishedWork: FiberNode;
+  finishedWork: FiberNode | null;
 
   constructor(container: Container, fiber: FiberNode) {
     this.container = container;

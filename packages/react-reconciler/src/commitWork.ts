@@ -37,7 +37,7 @@ function commitMutationEffects(finishedWork: FiberNode) {
   nextEffect = finishedWork;
   // dfs遍历fiber节点处理标记
   while (nextEffect !== null) {
-    const child = nextEffect.child;
+    const child = nextEffect.child as any;
     // 如果子树被标记了，一直深入进去
     if ((nextEffect.subTreeFlags & MutationMark) !== NotFlag && child !== null) {
       nextEffect = child;
@@ -60,7 +60,7 @@ function commitMutationEffectsOnFiber(finishedWork: FiberNode) {
   const { flags } = finishedWork;
   if ((flags & Placement) !== NotFlag) {
     // 新增
-    log(2)
+    log(3)
     commitPlacement(finishedWork);
     finishedWork.flags &= ~Placement;
   }

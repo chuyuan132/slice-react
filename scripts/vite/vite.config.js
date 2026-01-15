@@ -27,6 +27,5 @@ export default defineConfig({
         replacement: path.resolve(resolvePkgPath('react-dom'), './src/hostConfig.ts')
       }
     ]
-  },
-  cacheDir: ''
+  }
 });
