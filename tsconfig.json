@@ -1,23 +1,32 @@
 {
   "compilerOptions": {
-   "target": "ESNext",
-		"useDefineForClassFields": true,
-		"module": "ESNext",
-		"lib": ["ESNext", "DOM"],
-		"moduleResolution": "Node",
-		"strict": true,
-		"sourceMap": true,
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"esModuleInterop": true,
-		"noEmit": true,
-		"noUnusedLocals": false,
-		"noUnusedParameters": false,
-		"noImplicitReturns": false,
-		"skipLibCheck": true,
-		"baseUrl": "./packages",
-		"paths": {
-			"hostConfig": ["./react-dom/src/hostConfig.ts"]
-		}
-  },
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
+    "jsx": "react-jsx",
+    // 关键：指定 JSX 编译模式（React 17+ 推荐）
+    "jsxImportSource": "react",
+    // 配合 react-jsx 模式，指定 JSX 运行时
+    "moduleResolution": "Node",
+    "strict": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noImplicitReturns": false,
+    "skipLibCheck": true,
+    "baseUrl": "./packages",
+    "paths": {
+      "hostConfig": [
+        "./react-dom/src/hostConfig.ts"
+      ]
+    }
+  }
 }
