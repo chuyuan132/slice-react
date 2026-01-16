@@ -2,6 +2,7 @@ import { appendChildToContainer, Container } from 'hostConfig';
 import { FiberNode, FiberRootNode } from './fiber';
 import { ChildDeletion, MutationMark, NotFlag, Placement, Update } from './fiberFlags';
 import { HostComponent, HostRoot, HostText } from './workTags';
+
 /**
  * commit分三个子阶段
  * beforeMutation阶段
@@ -45,6 +46,7 @@ function commitMutationEffects(finishedWork: FiberNode) {
       while (nextEffect !== null) {
         commitMutationEffectsOnFiber(nextEffect);
         if (nextEffect.sibling !== null) {
+          nextEffect = nextEffect.sibling;
           break;
         }
         // 没有兄弟节点，回溯父节点

@@ -1,6 +1,6 @@
 import { appendInitialChild, createInstance, createTextInstance } from 'hostConfig';
 import { FiberNode } from './fiber';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 import { NotFlag } from './fiberFlags';
 
 /**
@@ -33,6 +33,9 @@ export function completeWork(fiber: FiberNode) {
       bubblePropertity(fiber);
       break;
     case HostRoot:
+      bubblePropertity(fiber);
+      break;
+    case FunctionComponent:
       bubblePropertity(fiber);
       break;
     default:

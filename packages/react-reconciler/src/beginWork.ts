@@ -1,7 +1,7 @@
 import { ReactElementType } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
 import { processUpdateQueue, UpdateQueue } from './updateQueue';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 import { mountChildFibers, reconcilerChildFibers } from './childFiber';
 
 /**
@@ -20,6 +20,8 @@ export function beginWork(fiber: FiberNode) {
       return updateHostComponent(fiber);
     case HostText:
       return null;
+    case FunctionComponent:
+      return updateFunctionComponent(fiber);
     default:
       if (__DEV__) {
         console.log('beginWork未兼容的类型', fiber.tag);
@@ -50,6 +52,15 @@ function updateHostComponent(fiber: FiberNode) {
   return fiber.child;
 }
 
+function updateFunctionComponent(fiber: FiberNode) {
+  // 创造子fiber
+  const pendingProps = fiber.pendingProps;
+  const Component = fiber.type;
+  const nextChildren = Component(pendingProps);
+  reconclierChildren(fiber, nextChildren);
+  return fiber.child;
+}
+
 function reconclierChildren(wip: FiberNode, children: ReactElementType) {
   const current = wip.alternate;
   if (wip.alternate) {
@@ -60,4 +71,3 @@ function reconclierChildren(wip: FiberNode, children: ReactElementType) {
     wip.child = mountChildFibers(wip, null, children);
   }
 }
-
