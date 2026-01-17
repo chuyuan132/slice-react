@@ -3,6 +3,7 @@ import { FiberNode } from './fiber';
 import { processUpdateQueue, UpdateQueue } from './updateQueue';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 import { mountChildFibers, reconcilerChildFibers } from './childFiber';
+import { renderWithHooks } from './fiberHooks';
 
 /**
  * 递归中的递
@@ -54,9 +55,7 @@ function updateHostComponent(fiber: FiberNode) {
 
 function updateFunctionComponent(fiber: FiberNode) {
   // 创造子fiber
-  const pendingProps = fiber.pendingProps;
-  const Component = fiber.type;
-  const nextChildren = Component(pendingProps);
+  const nextChildren = renderWithHooks(fiber);
   reconclierChildren(fiber, nextChildren);
   return fiber.child;
 }

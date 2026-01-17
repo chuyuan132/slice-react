@@ -10,3 +10,5 @@ export interface ReactElementType {
   ref: Ref;
   props: Props;
 }
+
+export type Action<T> = T | ((preState: T) => T);

@@ -1,4 +1,14 @@
 import { jsx } from './src/jsx';
+import currentDispatcher, { Dispatcher, resolveDispatcher } from './src/currentDispatcher';
+
+export const useState: Dispatcher['useState'] = initialState => {
+  const disPatcher = resolveDispatcher();
+  return disPatcher.useState(initialState);
+};
+
+export const __SECRET_INTERNAL_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = {
+  currentDispatcher
+};
 
 export default {
   version: '0.0.0',

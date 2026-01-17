@@ -1,4 +1,4 @@
-export type Action<T> = T | ((preState: T) => T);
+import { Action } from 'shared/ReactTypes';
 
 export interface Update<T> {
   action: Action<T>;

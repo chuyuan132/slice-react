@@ -1,10 +1,17 @@
 import reactDOM from '../../packages/react-dom';
 
-function App() {
+
+function Test() {
   return (
     <div>
-      <span>hello world</span>
+      <span>hello child</span>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Test />
   );
 }
 
