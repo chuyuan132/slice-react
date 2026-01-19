@@ -8,11 +8,7 @@ export interface Dispatcher {
   useState: <T>(initialState: T | (() => T)) => [T, Dispatch<T>];
 }
 
-export interface ICurrentDispatcher {
-  current: Dispatcher | null;
-}
-
-const currentDispatcher: ICurrentDispatcher = {
+const currentDispatcher: { current: Dispatcher | null } = {
   current: null
 };
 

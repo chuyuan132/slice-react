@@ -1,10 +1,12 @@
 import reactDOM from '../../packages/react-dom';
+import { useState } from 'react';
 
 
 function Test() {
+  const [count] = useState(1);
   return (
     <div>
-      <span>hello child</span>
+      <span>{count}</span>
     </div>
   );
 }
