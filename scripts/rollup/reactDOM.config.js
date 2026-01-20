@@ -13,7 +13,7 @@ export default [
     input: `${pkgPath}/${module}`,
     output: {
       file: `${distPkgPath}/index.js`,
-      name: `name`,
+      name: `ReactDOM`,
       format: 'umd'
     },
     external: [...(Object.keys(peerDependencies) || [])],
@@ -38,5 +38,15 @@ export default [
         }
       })
     ]
+  },
+  {
+    input: `${pkgPath}/src/test-utils.ts`,
+    output: {
+      file: `${distPkgPath}/test-utils.js`,
+      name: `testUtils`,
+      format: 'umd'
+    },
+    external: ['react', 'react-dom'],
+    plugins: getBaseRollupPlugins()
   }
 ];
