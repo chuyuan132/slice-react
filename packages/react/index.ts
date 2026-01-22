@@ -11,8 +11,6 @@ export const useState: Dispatcher['useState'] = initialState => {
 export const __SECRET_INTERNAL_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = {
   currentDispatcher
 };
+export const version = '0.0.0';
 
-export default {
-  version: '0.0.0',
-  createElement: jsx
-};
+export const createElement = jsx;

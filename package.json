@@ -15,6 +15,9 @@
   "license": "ISC",
   "packageManager": "pnpm@10.17.1",
   "devDependencies": {
+    "@babel/core": "^7.28.6",
+    "@babel/plugin-transform-react-jsx": "^7.28.6",
+    "@babel/preset-env": "^7.28.6",
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
     "@eslint/js": "^9.39.1",
@@ -24,6 +27,7 @@
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
+    "babel-jest": "^29.7.0",
     "commitlint": "^20.2.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",

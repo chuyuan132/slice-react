@@ -10,7 +10,7 @@ export default defineConfig([
     files: ['**/*.{js,mjs,cjs,ts,mts,cts}'],
     plugins: { js, prettier: eslintPluginPrettier },
     extends: ['js/recommended', eslintConfigPrettier],
-    languageOptions: { globals: { ...globals.browser, ...globals.node } },
+    languageOptions: { globals: { ...globals.browser, ...globals.node, ...globals.jest } },
     rules: {
       'prettier/prettier': 'error'
     }
@@ -18,7 +18,8 @@ export default defineConfig([
   tseslint.configs.recommended,
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off'
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-require-imports': 'off'
     }
   }
 ]);
