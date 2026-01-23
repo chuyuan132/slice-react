@@ -20,6 +20,7 @@ export class FiberNode {
   flags: Flag;
   memoizedState: any;
   subTreeFlags: Flag;
+  deletion: Array<FiberNode> | null;
 
   constructor(tag: WorkTag, pendingProps: Props, key: Key) {
     // 实例属性
@@ -43,6 +44,7 @@ export class FiberNode {
     this.flags = NotFlag;
     this.subTreeFlags = NotFlag;
     this.memoizedState = null;
+    this.deletion = null;
   }
 }
 
@@ -64,6 +66,7 @@ export function createWorkInProgress(current: FiberNode, pendingProps: Props) {
   if (wip) {
     wip.flags = NotFlag;
     wip.pendingProps = pendingProps;
+    wip.deletion = null;
   } else {
     wip = new FiberNode(current.tag, pendingProps, current.key);
     wip.stateNode = current.stateNode;
