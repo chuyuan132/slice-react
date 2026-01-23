@@ -1,4 +1,4 @@
-import { jsx } from './src/jsx';
+import { jsx as createElementFn, isValidElement as isValidElementFn } from './src/jsx';
 import currentDispatcher, { Dispatcher, resolveDispatcher } from './src/currentDispatcher';
 
 // 导出 useState 方法，具体实现是从共享数据层获取的
@@ -13,4 +13,6 @@ export const __SECRET_INTERNAL_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = {
 };
 export const version = '0.0.0';
 
-export const createElement = jsx;
+export const createElement = createElementFn;
+
+export const isValidElement = isValidElementFn
