@@ -25,7 +25,7 @@ export function beginWork(fiber: FiberNode) {
       return updateFunctionComponent(fiber);
     default:
       if (__DEV__) {
-        console.log('beginWork未兼容的类型', fiber.tag);
+        console.log('beginWork未兼容的类型', fiber);
       }
       return null;
   }

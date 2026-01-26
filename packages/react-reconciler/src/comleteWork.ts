@@ -1,7 +1,11 @@
 import { appendInitialChild, createInstance, createTextInstance } from 'hostConfig';
 import { FiberNode } from './fiber';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
-import { NotFlag } from './fiberFlags';
+import { NotFlag, Update } from './fiberFlags';
+
+function markUpdate(fiber: FiberNode) {
+  fiber.flags |= Update;
+}
 
 /**
  * 递归中的归，从最深层的节点一级级挂载就好
@@ -26,6 +30,11 @@ export function completeWork(fiber: FiberNode) {
     case HostText:
       if (current !== null && fiber.stateNode !== null) {
         // update,暂不做处理
+        const oldProps = current.memoizedProps.content;
+        const newProps = fiber.pendingProps.content;
+        if (oldProps !== newProps) {
+          markUpdate(fiber);
+        }
       } else {
         // 根据宿主环境生成实例
         fiber.stateNode = createTextInstance(fiber.pendingProps.content);
