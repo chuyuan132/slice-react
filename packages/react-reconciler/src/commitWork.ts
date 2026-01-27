@@ -1,85 +1,145 @@
-import { appendChildToContainer, Container } from 'hostConfig';
+import { appendInitialChild, commitUpdate, Container, removeChild } from 'hostConfig';
 import { FiberNode, FiberRootNode } from './fiber';
 import { ChildDeletion, MutationMark, NotFlag, Placement, Update } from './fiberFlags';
-import { HostComponent, HostRoot, HostText } from './workTags';
+import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 
+// 当进入commitWork流程的时候，说明beginWork和completeWork已经处理完成
+// beginWork负责往下探测，根据reactElementType生成/复用fiber节点且打上与结构相关的flags
+// 探测到底的时候，启动completeWork流程，处理本节点生成stateNode且打上更新的flags,然后判断是否有兄弟节点，有则重新启动beginWork流程，没有就返回上一层节点
+// 当走到commitWork流程的时候，在内存中已经生成一颗fiber树，DOM之间也互相挂载了。
+
+// 首屏渲染流程：
 /**
- * commit分三个子阶段
- * beforeMutation阶段
- * mutation阶段
- * layout阶段
- * @param root
+ * beginWork -> create children fiber -> no children -> completeWork self fiber -> sibling beginWork -> sibling completeWork -> no sibling sibling -> parent completeWork
+ * 生成了一颗fiber树，只有hostRootFiber的child fiber 有placement标记，其他fiber没有，且stateNode之间已经互相挂载了
  */
 export function commitRoot(root: FiberRootNode) {
   const finishedWork = root.finishedWork;
   if (finishedWork == null) {
+    if (__DEV__) {
+      console.warn('commitWork: no finishedWork');
+    }
     return;
   }
-  root.finishedWork = null;
   const rootHasEffect = (finishedWork.flags & MutationMark) !== NotFlag;
   const subTreeHasEffect = (finishedWork.subTreeFlags & MutationMark) !== NotFlag;
   if (rootHasEffect || subTreeHasEffect) {
-    // beforeMutation阶段
-
-    // mutation阶段
+    // beforeMutation
+    // mutation
     commitMutationEffects(finishedWork);
     root.current = finishedWork;
-    //layout阶段
+    // layout
   } else {
     root.current = finishedWork;
   }
 }
 
 let nextEffect: FiberNode | null = null;
-
 function commitMutationEffects(finishedWork: FiberNode) {
   nextEffect = finishedWork;
-  // dfs遍历fiber节点处理标记
   while (nextEffect !== null) {
-    const child = nextEffect.child as any;
-    // 如果子树被标记了，一直深入进去
-    if ((nextEffect.subTreeFlags & MutationMark) !== NotFlag && child !== null) {
-      nextEffect = child;
+    nextEffect = nextEffect.child;
+    if (nextEffect && (nextEffect.subTreeFlags & MutationMark) !== NotFlag) {
+      nextEffect = nextEffect.child;
     } else {
-      // 没有子节点或者没有subTreeFlags标记了
-      // 处理好当前节点的flag，然后遍历兄弟节点
+      // 如果没有子树或者子树上没有标记了，那就对当前节点处理标记
       while (nextEffect !== null) {
         commitMutationEffectsOnFiber(nextEffect);
-        if (nextEffect.sibling !== null) {
+        if (nextEffect?.sibling !== null) {
           nextEffect = nextEffect.sibling;
           break;
         }
-        // 没有兄弟节点，回溯父节点
-        nextEffect = nextEffect.return;
+        nextEffect = nextEffect?.return;
       }
     }
   }
 }
 
 function commitMutationEffectsOnFiber(finishedWork: FiberNode) {
-  const { flags } = finishedWork;
+  const flags = finishedWork.flags;
   if ((flags & Placement) !== NotFlag) {
-    // 新增
     commitPlacement(finishedWork);
     finishedWork.flags &= ~Placement;
   }
   if ((flags & Update) !== NotFlag) {
-    // 更新
-    // finishedWork.flags &= ~Update;
+    commitUpdate(finishedWork);
+    finishedWork.flags &= ~Update;
   }
   if ((flags & ChildDeletion) !== NotFlag) {
-    // 删除子节点
-    // finishedWork.flags &= ~ChildDeletion;
+    const deletions = finishedWork.deletions;
+    if (deletions !== null) {
+      deletions.forEach(item => {
+        commitDeletion(item);
+      });
+    }
+    finishedWork.flags &= ~ChildDeletion;
+  }
+}
+
+function commitDeletion(fiber: FiberNode) {
+  let rootHostNode: FiberNode | null = null;
+  commitNestedComponent(fiber, unMountFiber => {
+    switch (unMountFiber.tag) {
+      case HostComponent:
+        if (rootHostNode === null) {
+          rootHostNode = unMountFiber;
+        }
+        // 解绑ref
+        break;
+      case HostText:
+        if (rootHostNode === null) {
+          rootHostNode = unMountFiber;
+        }
+        break;
+      case FunctionComponent:
+        // todo: unmount, useeffect, ref
+        break;
+      default:
+        if (__DEV__) {
+          console.warn('未处理的unMountFiber类型', unMountFiber);
+        }
+        break;
+    }
+  });
+  if (rootHostNode !== null) {
+    const parent = getHostParent(fiber);
+    if (parent !== null) {
+      removeChild(parent, (rootHostNode as FiberNode).stateNode);
+    }
+  }
+  fiber.return = null;
+  fiber.deletions = null;
+}
+
+function commitNestedComponent(fiber: FiberNode, onCommitUnount: (unMountFiber: FiberNode) => void) {
+  let node = fiber;
+  while (true) {
+    onCommitUnount(node);
+    if (node.child !== null) {
+      node.child.return = node;
+      node = node.child;
+      continue;
+    }
+    if (node === fiber) {
+      return;
+    }
+
+    while (node.sibling === null) {
+      if (node.return === null || node.return === fiber) {
+        return;
+      }
+      node = node.return;
+    }
+    node.sibling.return = node;
+    node = node.sibling;
   }
 }
 
 function commitPlacement(finishedWork: FiberNode) {
-  // 获取parent和要插入的dom
-  const parent = getHostParent(finishedWork);
-  if (parent === null) {
-    return;
+  const hostParent = getHostParent(finishedWork);
+  if (hostParent !== null) {
+    appendPlacementNodeInToContainer(finishedWork, hostParent);
   }
-  appendPlacementNodeInToContainer(finishedWork, parent);
 }
 
 function getHostParent(fiber: FiberNode) {
@@ -97,7 +157,7 @@ function getHostParent(fiber: FiberNode) {
 
 function appendPlacementNodeInToContainer(finishedWork: FiberNode, hostParent: Container) {
   if (finishedWork.tag === HostComponent || finishedWork.tag === HostText) {
-    appendChildToContainer(hostParent, finishedWork.stateNode);
+    appendInitialChild(hostParent, finishedWork.stateNode);
     return;
   }
   const child = finishedWork.child;

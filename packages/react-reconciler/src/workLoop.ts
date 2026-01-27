@@ -8,9 +8,6 @@ let workInProgress: FiberNode | null = null;
 
 function prepareFreshStack(root: FiberRootNode) {
   workInProgress = createWorkInProgress(root.current, {});
-  if (__DEV__) {
-    console.debug('prepareFreshStack: create/copy workInProgress complete!', workInProgress);
-  }
 }
 
 function completeUnitOfWork(fiber: FiberNode) {
@@ -39,52 +36,33 @@ function preformUnitOfWork(fiber: FiberNode) {
 }
 
 function workLook() {
-  if (__DEV__) {
-    console.debug('workLook start');
-  }
   while (workInProgress) {
     preformUnitOfWork(workInProgress);
   }
 }
 
 function renterRoot(root: FiberRootNode) {
-  if (__DEV__) {
-    console.debug('renterRoot start');
-  }
   prepareFreshStack(root);
   try {
     workLook();
     root.finishedWork = root.current.alternate;
-    if (__DEV__) {
-      console.log('workLook complete, finishedWork: ', root.finishedWork);
-      console.log('commitRoot start');
-    }
     commitRoot(root);
   } catch (err) {
-    console.log(err);
     if (__DEV__) {
-      console.error('workLook失败');
+      console.error('workLook failed', err);
     }
   }
 }
 
 export function scheduleUpdateOnFiber(fiber: FiberNode) {
-  if (__DEV__) {
-    console.debug('scheduleUpdateOnFiber start');
-  }
   const root = markUpdateFromFiberToRoot(fiber);
-  if (!root) {
-    if (__DEV__) {
-      console.error('scheduleUpdateOnFiber failed, root not exist');
-    }
-  }
   renterRoot(root);
 }
 
 function markUpdateFromFiberToRoot(fiber: FiberNode) {
   let node = fiber;
   let parent = fiber.return;
-  while (parent) {
+  while (parent !== null) {
     node = parent;
     parent = parent.return;
   }

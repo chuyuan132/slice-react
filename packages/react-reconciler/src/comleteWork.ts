@@ -3,10 +3,6 @@ import { FiberNode } from './fiber';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 import { NotFlag, Update } from './fiberFlags';
 
-function markUpdate(fiber: FiberNode) {
-  fiber.flags |= Update;
-}
-
 /**
  * 递归中的归，从最深层的节点一级级挂载就好
  * 构建离屏的DOM树
@@ -30,9 +26,9 @@ export function completeWork(fiber: FiberNode) {
     case HostText:
       if (current !== null && fiber.stateNode !== null) {
         // update,暂不做处理
-        const oldProps = current.memoizedProps.content;
-        const newProps = fiber.pendingProps.content;
-        if (oldProps !== newProps) {
+        const oldText = current.memoizedProps.content;
+        const newText = fiber.pendingProps.content;
+        if (oldText !== newText) {
           markUpdate(fiber);
         }
       } else {
@@ -54,6 +50,10 @@ export function completeWork(fiber: FiberNode) {
   }
 }
 
+function markUpdate(fiber: FiberNode) {
+  fiber.flags |= Update;
+}
+
 function appendAllChildren(parent: any, fiber: FiberNode) {
   let node = fiber.child;
   while (node !== null) {
@@ -61,6 +61,7 @@ function appendAllChildren(parent: any, fiber: FiberNode) {
       // 挂载操作
       appendInitialChild(parent, node.stateNode);
     } else if (node.child !== null) {
+      node.child.return = node;
       node = node.child;
       continue;
     }
@@ -73,6 +74,7 @@ function appendAllChildren(parent: any, fiber: FiberNode) {
       }
       node = node.return;
     }
+    node.sibling.return = node;
     node = node.sibling;
   }
 }
