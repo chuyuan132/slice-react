@@ -69,7 +69,7 @@ export function updateWorkInProgressHook<T>(): Hook<T> {
   const newHook: Hook<T> = {
     memoizedState: currentHook.memoizedState,
     updateQueue: currentHook.updateQueue,
-    next: currentHook.next
+    next: null
   };
 
   if (workInProgressHook == null) {
@@ -104,6 +104,7 @@ function mountState<T>(initialState: T | (() => T)): [T, Dispatch<T>] {
   }
   const queue = createUpdateQueue();
   const dispatch = dispatchSetState.bind(null, currentlyRenderFiber as FiberNode, queue);
+  hook.memoizedState = memoizedState;
   hook.updateQueue = queue;
   hook.updateQueue.dispatch = dispatch;
   return [memoizedState, dispatch];
@@ -117,7 +118,6 @@ function updateState<T>(): [T, Dispatch<T>] {
     const { memoizedState } = processUpdateQueue<T>(hook.memoizedState, queue.share.pending);
     hook.memoizedState = memoizedState;
   }
-
   return [hook.memoizedState, hook.updateQueue?.dispatch as Dispatch<T>];
 }
 
@@ -127,7 +127,7 @@ export function renderWithHooks(fiber: FiberNode) {
   const current = fiber.alternate;
   if (current !== null) {
     // update
-    internals.currentDispatcher.current = null;
+    internals.currentDispatcher.current = HookDispatcherOnUpdate();
   } else {
     // mount
     internals.currentDispatcher.current = HookDispatcherOnMount();
@@ -138,5 +138,6 @@ export function renderWithHooks(fiber: FiberNode) {
   const children = Component(pendingProps);
   currentlyRenderFiber = null;
   workInProgressHook = null;
+  currentHook = null;
   return children;
 }

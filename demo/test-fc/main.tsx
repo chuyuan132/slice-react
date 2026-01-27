@@ -1,21 +1,14 @@
 import reactDOM from '../../packages/react-dom';
 import { useState } from 'react'
-function App() {
-  return (
-    <Test />
-  );
-}
 
 function Test() {
-  const [num, setState] = useState(1);
-  window.setState = setState;
+  const [num, ccc] = useState(1);
+  window.abc = ccc;
   return (
-    <div>
-      <span>{num}</span>
-    </div>
+    <span>{num}</span>
   );
 }
 
-reactDOM.createRoot(document.getElementById('root') as Element).render(Test as any);
+reactDOM.createRoot(document.getElementById('root') as Element).render(<Test /> as any);
 
 
