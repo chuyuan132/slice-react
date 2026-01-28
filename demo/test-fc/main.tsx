@@ -5,7 +5,10 @@ function Test() {
   const [num, ccc] = useState(1);
   window.abc = ccc;
   return (
-    <span>{num}</span>
+    <div>
+      <span>{num}</span>
+    </div>
+
   );
 }
 

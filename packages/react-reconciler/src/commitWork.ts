@@ -38,9 +38,9 @@ let nextEffect: FiberNode | null = null;
 function commitMutationEffects(finishedWork: FiberNode) {
   nextEffect = finishedWork;
   while (nextEffect !== null) {
-    nextEffect = nextEffect.child;
+    const child: FiberNode | null = nextEffect.child;
     if (nextEffect && (nextEffect.subTreeFlags & MutationMark) !== NotFlag) {
-      nextEffect = nextEffect.child;
+      nextEffect = child;
     } else {
       // 如果没有子树或者子树上没有标记了，那就对当前节点处理标记
       while (nextEffect !== null) {
