@@ -3,10 +3,9 @@ import { useState } from 'react'
 
 function Test() {
   const [num, ccc] = useState(1);
-  window.abc = ccc;
   return (
     <div>
-      <span>{num}</span>
+      <span onClick={() => ccc(num + 1)}>{num}</span>
     </div>
 
   );

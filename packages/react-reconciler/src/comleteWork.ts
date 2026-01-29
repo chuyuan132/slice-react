@@ -2,6 +2,7 @@ import { appendInitialChild, createInstance, createTextInstance } from 'hostConf
 import { FiberNode } from './fiber';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 import { NotFlag, Update } from './fiberFlags';
+import { updateFiberProps } from 'react-dom/src/syntheticEvent';
 
 /**
  * 递归中的归，从最深层的节点一级级挂载就好
@@ -14,10 +15,11 @@ export function completeWork(fiber: FiberNode) {
   switch (fiber.tag) {
     case HostComponent:
       if (current !== null && fiber.stateNode !== null) {
-        // update,暂不做处理
+        // update,判断属性变化打上标记
+        updateFiberProps(fiber.stateNode, fiber.pendingProps);
       } else {
         // 根据宿主环境生成实例
-        const instance = createInstance(fiber.type);
+        const instance = createInstance(fiber.type, fiber.pendingProps);
         appendAllChildren(instance, fiber);
         fiber.stateNode = instance;
       }
