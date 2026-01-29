@@ -25,28 +25,43 @@ function ChildReconciler(shouldTrackEffect: boolean) {
     fiber.return = null;
     return fiber;
   }
+
+  function deleteRemainingChildren(returnFiber: FiberNode, currentFiber: FiberNode | null) {
+    if (!shouldTrackEffect) {
+      return;
+    }
+    let childToDelete = currentFiber;
+    while (childToDelete !== null) {
+      deletionChild(returnFiber, childToDelete);
+      childToDelete = childToDelete.sibling;
+    }
+  }
   function reconcilerSingleElement(returnFiber: FiberNode, currentFiber: FiberNode | null, element: ReactElementType) {
-    work: if (currentFiber !== null) {
+    while (currentFiber !== null) {
       // update
       if (currentFiber.key === element.key) {
+        // key 相同
         if (element.$$typeof === REACT_ELEMENT_TYPE) {
           if (element.type === currentFiber.type) {
-            // 复用
+            // type相同
             const existFiber = useFiber(currentFiber, element.props);
             existFiber.return = returnFiber;
+            deleteRemainingChildren(returnFiber, currentFiber.sibling);
             return existFiber;
           }
-          deletionChild(returnFiber, currentFiber);
-          break work;
+          // type 不相同，删掉所有旧的
+          deleteRemainingChildren(returnFiber, currentFiber);
+          break;
         } else {
           if (__DEV__) {
             console.warn('enter beginwork update process, element type no support', element);
           }
-          break work;
+          break;
         }
       } else {
+        // key不同，删掉当前，遍历兄弟节点
         deletionChild(returnFiber, currentFiber);
-        break work;
+        currentFiber = currentFiber.sibling;
       }
     }
     const fiber = createFiberFromElement(element);
@@ -59,14 +74,16 @@ function ChildReconciler(shouldTrackEffect: boolean) {
     currentFiber: FiberNode | null,
     content: string | number | null
   ) {
-    if (currentFiber !== null) {
+    while (currentFiber !== null) {
       if (currentFiber.tag === HostText) {
-        // 类型没变，可以复用
+        // type相同
         const existing = useFiber(currentFiber, { content });
         existing.return = returnFiber;
+        deleteRemainingChildren(returnFiber, currentFiber.sibling);
         return existing;
       }
       deletionChild(returnFiber, currentFiber);
+      currentFiber = currentFiber.sibling;
     }
 
     const fiber = new FiberNode(HostText, { content }, null);
