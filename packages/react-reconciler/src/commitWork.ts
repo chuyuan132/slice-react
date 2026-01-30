@@ -137,8 +137,31 @@ function commitNestedComponent(fiber: FiberNode, onCommitUnount: (unMountFiber: 
 
 function commitPlacement(finishedWork: FiberNode) {
   const hostParent = getHostParent(finishedWork);
+  const hostSibling = getHostSibling(finishedWork);
   if (hostParent !== null) {
     appendPlacementNodeInToContainer(finishedWork, hostParent);
+  }
+}
+
+function getHostSibling(fiber: FiberNode) {
+  let node: FiberNode | null = fiber;
+  siblings: while (true) {
+    if (node?.sibling === null) {
+      const parent = node.return;
+    }
+    node = node.sibling;
+
+    if (node.tag !== HostComponent && node.tag !== HostText) {
+      // 向下找
+      if ((node.flags & Placement) !== NotFlag) {
+        // 当前节点存在placement标记，可能是新增或者移动过来的，不稳定
+        continue siblings;
+      }
+      if (node.child === null) {
+        continue siblings;
+      }
+      return node.child.stateNode;
+    }
   }
 }
 
