@@ -205,10 +205,10 @@ function appendPlacementNodeInToContainer(finishedWork: FiberNode, hostParent: C
   }
   const child = finishedWork.child;
   if (child !== null) {
-    appendPlacementNodeInToContainer(child, hostParent);
+    appendPlacementNodeInToContainer(child, hostParent, before);
     let sibling = child.sibling;
     while (sibling !== null) {
-      appendPlacementNodeInToContainer(sibling, hostParent);
+      appendPlacementNodeInToContainer(sibling, hostParent, before);
       sibling = sibling.sibling;
     }
   }

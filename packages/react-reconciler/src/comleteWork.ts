@@ -86,7 +86,8 @@ function bubblePropertity(fiber: FiberNode) {
   while (node !== null) {
     subTreeFlags |= node.subTreeFlags;
     subTreeFlags |= node.flags;
-    node = node.child;
+    node = node.sibling;
   }
+
   fiber.subTreeFlags |= subTreeFlags;
 }

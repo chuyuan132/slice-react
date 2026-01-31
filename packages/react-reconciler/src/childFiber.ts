@@ -18,11 +18,12 @@ function ChildReconciler(shouldTrackEffect: boolean) {
   }
 
   function useFiber(currentFiber: FiberNode, props: Props) {
-    const fiber = createWorkInProgress(currentFiber, props);
-    fiber.sibling = null;
-    fiber.index = 0;
-    fiber.return = null;
-    return fiber;
+    const clone = createWorkInProgress(currentFiber, props);
+    clone.sibling = null;
+    clone.index = 0;
+    clone.child = null;
+    clone.return = null;
+    return clone;
   }
 
   function deleteRemainingChildren(returnFiber: FiberNode, currentFiber: FiberNode | null) {
@@ -99,17 +100,10 @@ function ChildReconciler(shouldTrackEffect: boolean) {
 
   function updateFromMap(wip: FiberNode, existingChildren: Map<string, FiberNode>, index: number, element: any) {
     const keyToUse = element.key !== null ? element.key : index;
+    // 前fiber节点
     const before = existingChildren.get(keyToUse);
-    // 文本节点
-    if (typeof element === 'string' || typeof element === 'number') {
-      if (before && before.tag === HostText) {
-        existingChildren.delete(keyToUse);
-        return useFiber(before, { content: element + '' });
-      } else {
-        return new FiberNode(HostText, { content: element + '' }, null);
-      }
-    }
-    // HostComponent节点
+
+    // 单节点
     if (typeof element === 'object' && element !== null) {
       switch (element.$$typeof) {
         case REACT_ELEMENT_TYPE:
@@ -119,25 +113,24 @@ function ChildReconciler(shouldTrackEffect: boolean) {
             return fiber;
           }
           return createFiberFromElement(element);
-        default:
-          if (__DEV__) {
-            console.warn('【beginWork的子fiber创建流程】无法识别reactElement类型，无法生成子fiber', element);
-          }
       }
     }
+
+    // 文本节点类型
+    if (typeof element === 'string' || typeof element === 'number') {
+      if (before && before.tag === HostText) {
+        existingChildren.delete(keyToUse);
+        return useFiber(before, { content: element + '' });
+      } else {
+        return new FiberNode(HostText, { content: element + '' }, null);
+      }
+    }
+
     // todo：element可能又是一个数组
     return null;
   }
 
-  function reconcilerChildrenArray(returnFiber: FiberNode, currentFirstChildren: FiberNode | null, newChildren: any[]) {
-    /**
-     * 1、收集current同级的fiber节点
-     * 2、遍历newChildren
-     *    1、map中存在fiber，是否可复用
-     *    2、map不存在fiber，或不能复用
-     * 3、判断插入还是移动flag
-     * 4、给剩余的fiber打上删除标记
-     */
+  function reconcilerChildrenArray(returnFiber: FiberNode, currentFirstChildren: FiberNode | null, element: any) {
     const existingChildren = new Map();
     let currentFiber = currentFirstChildren;
     let lastNewFiber = null;
@@ -149,9 +142,10 @@ function ChildReconciler(shouldTrackEffect: boolean) {
       existingChildren.set(keyToUse, currentFiber);
       currentFiber = currentFiber.sibling;
     }
-    // 2、遍历newChildren
-    for (let i = 0; i < newChildren.length; i++) {
-      const fiber = updateFromMap(returnFiber, existingChildren, i, newChildren[i]);
+    // 2、遍历element
+    for (let i = 0; i < element.length; i++) {
+      const currElement = element[i];
+      const fiber = updateFromMap(returnFiber, existingChildren, i, currElement);
 
       if (fiber === null) {
         continue;
@@ -194,35 +188,34 @@ function ChildReconciler(shouldTrackEffect: boolean) {
     return firstNewFiber;
   }
 
-  return (wip: FiberNode, currentFiber: FiberNode | null, newChildren: ReactElementType | string | number) => {
+  return (returnFiber: FiberNode, currentFiber: FiberNode | null, element: ReactElementType | string | number) => {
     // 单节点
-    if (typeof newChildren === 'object' && newChildren !== null) {
-      switch (newChildren.$$typeof) {
+    if (typeof element === 'object' && element !== null) {
+      switch (element.$$typeof) {
         case REACT_ELEMENT_TYPE:
-          return placeSingleElement(reconcilerSingleElement(wip, currentFiber, newChildren));
-        default:
-          if (__DEV__) {
-            console.log('【beginWork的子fiber创建流程】无法识别reactElement类型，无法生成子fiber', newChildren);
-          }
+          return placeSingleElement(reconcilerSingleElement(returnFiber, currentFiber, element));
       }
     }
     // 单文本节点
-    if (typeof newChildren === 'string' || typeof newChildren === 'number') {
-      return placeSingleElement(reconcilerSingleTextElement(wip, currentFiber, newChildren));
+    if (typeof element === 'string' || typeof element === 'number') {
+      return placeSingleElement(reconcilerSingleTextElement(returnFiber, currentFiber, element));
     }
 
     // 多节点
-    if (Array.isArray(newChildren) && newChildren !== null) {
-      return reconcilerChildrenArray(wip, currentFiber, newChildren);
+    if (Array.isArray(element) && element !== null) {
+      return reconcilerChildrenArray(returnFiber, currentFiber, element);
     }
 
     if (__DEV__) {
-      console.log('【beginWork的子fiber创建流程】非string或number，无法生成子fiber', newChildren);
+      console.warn(
+        '【beginWork】element未命中单节点，单文本节点，多节点逻辑，将进入兜底，删除所有旧的fiber节点，返回null',
+        element
+      );
     }
 
-    // 兜底
+    // 兜底，删除所有旧的子节点，返回一个null的fiber节点
     if (currentFiber !== null) {
-      deletionChild(wip, currentFiber);
+      deletionChild(returnFiber, currentFiber);
     }
 
     return null;
