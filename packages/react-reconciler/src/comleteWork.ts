@@ -76,7 +76,6 @@ function appendAllChildren(parent: any, fiber: FiberNode) {
       }
       node = node.return;
     }
-    node.sibling.return = node;
     node = node.sibling;
   }
 }

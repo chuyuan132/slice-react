@@ -2,10 +2,16 @@ import reactDOM from '../../packages/react-dom';
 import { useState } from 'react'
 
 function Test() {
-  const [num, ccc] = useState(1);
+  const arr = [1, 2, 3];
   return (
     <div>
-      <span onClick={() => ccc(num + 1)}>{num}</span>
+      <ul>
+        {
+          arr.map(item => {
+            return <li key={item}>{item}</li>
+          })
+        }
+      </ul>
     </div>
 
   );

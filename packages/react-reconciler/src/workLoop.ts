@@ -18,10 +18,9 @@ function completeUnitOfWork(fiber: FiberNode) {
     if (sibling !== null) {
       workInProgress = sibling;
       return;
-    } else {
-      node = node.return;
-      workInProgress = node;
     }
+    node = node.return;
+    workInProgress = node;
   } while (node !== null);
 }
 
@@ -36,7 +35,7 @@ function preformUnitOfWork(fiber: FiberNode) {
 }
 
 function workLook() {
-  while (workInProgress) {
+  while (workInProgress !== null) {
     preformUnitOfWork(workInProgress);
   }
 }
@@ -46,6 +45,8 @@ function renterRoot(root: FiberRootNode) {
   try {
     workLook();
     root.finishedWork = root.current.alternate;
+    console.log('root.finishedWork', root.finishedWork);
+
     commitRoot(root);
   } catch (err) {
     if (__DEV__) {

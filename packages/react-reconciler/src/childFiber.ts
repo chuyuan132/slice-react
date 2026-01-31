@@ -19,8 +19,8 @@ function ChildReconciler(shouldTrackEffect: boolean) {
 
   function useFiber(currentFiber: FiberNode, props: Props) {
     const fiber = createWorkInProgress(currentFiber, props);
-    fiber.index = 0;
     fiber.sibling = null;
+    fiber.index = 0;
     fiber.return = null;
     return fiber;
   }
@@ -103,6 +103,7 @@ function ChildReconciler(shouldTrackEffect: boolean) {
     // 文本节点
     if (typeof element === 'string' || typeof element === 'number') {
       if (before && before.tag === HostText) {
+        existingChildren.delete(keyToUse);
         return useFiber(before, { content: element + '' });
       } else {
         return new FiberNode(HostText, { content: element + '' }, null);
@@ -151,6 +152,7 @@ function ChildReconciler(shouldTrackEffect: boolean) {
     // 2、遍历newChildren
     for (let i = 0; i < newChildren.length; i++) {
       const fiber = updateFromMap(returnFiber, existingChildren, i, newChildren[i]);
+
       if (fiber === null) {
         continue;
       }
@@ -163,12 +165,13 @@ function ChildReconciler(shouldTrackEffect: boolean) {
         firstNewFiber = fiber;
       } else {
         lastNewFiber.sibling = fiber;
-        lastNewFiber = lastNewFiber.sibling;
+        lastNewFiber = fiber;
       }
+
       if (!shouldTrackEffect) {
         continue;
       }
-      // 判断插入还是移动flag
+      // 判断插入还是移动flag;
       const current = fiber.alternate;
       if (current !== null) {
         // update
@@ -184,11 +187,11 @@ function ChildReconciler(shouldTrackEffect: boolean) {
         // mount
         fiber.flags |= Placement;
       }
-      existingChildren.forEach(fiber => {
-        deletionChild(returnFiber, fiber);
-      });
-      return firstNewFiber;
     }
+    existingChildren.forEach(fiber => {
+      deletionChild(returnFiber, fiber);
+    });
+    return firstNewFiber;
   }
 
   return (wip: FiberNode, currentFiber: FiberNode | null, newChildren: ReactElementType | string | number) => {
