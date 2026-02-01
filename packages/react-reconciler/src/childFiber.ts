@@ -1,6 +1,6 @@
 import { Props, ReactElementType } from 'shared/ReactTypes';
-import { createFiberFromElement, createWorkInProgress, FiberNode } from './fiber';
-import { REACT_ELEMENT_TYPE } from 'shared/ReactSymbol';
+import { createFiberFromElement, createFiberFromFragment, createWorkInProgress, FiberNode } from './fiber';
+import { REACT_ELEMENT_TYPE, REACT_FRAGEMENT_TYPE } from 'shared/ReactSymbol';
 import { HostText } from './workTags';
 import { ChildDeletion, Placement } from './fiberFlags';
 function ChildReconciler(shouldTrackEffect: boolean) {
@@ -44,7 +44,12 @@ function ChildReconciler(shouldTrackEffect: boolean) {
         if (element.$$typeof === REACT_ELEMENT_TYPE) {
           if (element.type === currentFiber.type) {
             // type相同
-            const existFiber = useFiber(currentFiber, element.props);
+            let props = element.props;
+            // 考虑到单节点内部可能包含了一个fragment节点，所以需要拿到正确的props
+            if (element.type === REACT_FRAGEMENT_TYPE) {
+              props = element.props.children;
+            }
+            const existFiber = useFiber(currentFiber, props);
             existFiber.return = returnFiber;
             deleteRemainingChildren(returnFiber, currentFiber.sibling);
             return existFiber;
@@ -64,7 +69,12 @@ function ChildReconciler(shouldTrackEffect: boolean) {
         currentFiber = currentFiber.sibling;
       }
     }
-    const fiber = createFiberFromElement(element);
+    let fiber;
+    if (element.type === REACT_FRAGEMENT_TYPE) {
+      fiber = createFiberFromFragment(element.props.children, element.key);
+    } else {
+      fiber = createFiberFromElement(element);
+    }
     fiber.return = returnFiber;
     return fiber;
   }
@@ -188,17 +198,25 @@ function ChildReconciler(shouldTrackEffect: boolean) {
     return firstNewFiber;
   }
 
-  return (returnFiber: FiberNode, currentFiber: FiberNode | null, element: ReactElementType | string | number) => {
+  return (returnFiber: FiberNode, currentFiber: FiberNode | null, element: any) => {
+    // 顶层fragment节点
+    const isUnkeyedToTopLevelFragment =
+      typeof element === 'object' && element !== null && element.type === REACT_FRAGEMENT_TYPE && element.key === null;
+    if (isUnkeyedToTopLevelFragment) {
+      element = element.props.children;
+    }
+
+    // 单文本节点
+    if (typeof element === 'string' || typeof element === 'number') {
+      return placeSingleElement(reconcilerSingleTextElement(returnFiber, currentFiber, element));
+    }
+
     // 单节点
     if (typeof element === 'object' && element !== null) {
       switch (element.$$typeof) {
         case REACT_ELEMENT_TYPE:
           return placeSingleElement(reconcilerSingleElement(returnFiber, currentFiber, element));
       }
-    }
-    // 单文本节点
-    if (typeof element === 'string' || typeof element === 'number') {
-      return placeSingleElement(reconcilerSingleTextElement(returnFiber, currentFiber, element));
     }
 
     // 多节点
@@ -215,7 +233,7 @@ function ChildReconciler(shouldTrackEffect: boolean) {
 
     // 兜底，删除所有旧的子节点，返回一个null的fiber节点
     if (currentFiber !== null) {
-      deletionChild(returnFiber, currentFiber);
+      deleteRemainingChildren(returnFiber, currentFiber);
     }
 
     return null;
