@@ -1,6 +1,6 @@
 import { appendInitialChild, createInstance, createTextInstance } from 'hostConfig';
 import { FiberNode } from './fiber';
-import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
+import { Fragment, FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 import { NotFlag, Update } from './fiberFlags';
 import { updateFiberProps } from 'react-dom/src/syntheticEvent';
 
@@ -15,10 +15,8 @@ export function completeWork(fiber: FiberNode) {
   switch (fiber.tag) {
     case HostComponent:
       if (current !== null && fiber.stateNode !== null) {
-        // update,判断属性变化打上标记
         updateFiberProps(fiber.stateNode, fiber.pendingProps);
       } else {
-        // 根据宿主环境生成实例
         const instance = createInstance(fiber.type, fiber.pendingProps);
         appendAllChildren(instance, fiber);
         fiber.stateNode = instance;
@@ -27,22 +25,19 @@ export function completeWork(fiber: FiberNode) {
       break;
     case HostText:
       if (current !== null && fiber.stateNode !== null) {
-        // update,暂不做处理
         const oldText = current.memoizedProps.content;
         const newText = fiber.pendingProps.content;
         if (oldText !== newText) {
           markUpdate(fiber);
         }
       } else {
-        // 根据宿主环境生成实例
         fiber.stateNode = createTextInstance(fiber.pendingProps.content);
       }
       bubblePropertity(fiber);
       break;
-    case HostRoot:
-      bubblePropertity(fiber);
-      break;
     case FunctionComponent:
+    case Fragment:
+    case HostRoot:
       bubblePropertity(fiber);
       break;
     default:

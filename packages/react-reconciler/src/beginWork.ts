@@ -1,7 +1,7 @@
 import { ReactElementType } from 'shared/ReactTypes';
 import { FiberNode } from './fiber';
 import { processUpdateQueue, UpdateQueue } from './updateQueue';
-import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
+import { FunctionComponent, HostComponent, HostRoot, HostText, Fragment } from './workTags';
 import { mountChildFibers, reconcilerChildFibers } from './childFiber';
 import { renderWithHooks } from './fiberHooks';
 
@@ -23,6 +23,8 @@ export function beginWork(fiber: FiberNode) {
       return null;
     case FunctionComponent:
       return updateFunctionComponent(fiber);
+    case Fragment:
+      return updateFragment(fiber);
     default:
       if (__DEV__) {
         console.log('beginWork未兼容的类型', fiber);
@@ -41,6 +43,12 @@ function updateHostRoot(fiber: FiberNode) {
   updateQueue.share.pending = null;
   // 创造子fiber
   const nextChildren = fiber.memoizedState;
+  reconclierChildren(fiber, nextChildren);
+  return fiber.child;
+}
+
+function updateFragment(fiber: FiberNode) {
+  const nextChildren = fiber.pendingProps;
   reconclierChildren(fiber, nextChildren);
   return fiber.child;
 }
