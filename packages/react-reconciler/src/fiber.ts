@@ -2,6 +2,7 @@ import { Key, Props, ReactElementType, Ref, Type } from 'shared/ReactTypes';
 import { Fragment, FunctionComponent, HostComponent, WorkTag } from './workTags';
 import { Container } from 'hostConfig';
 import { Flag, NotFlag } from './fiberFlags';
+import { Lane, Lanes, NoLane } from './fiberLanes';
 
 export class FiberNode {
   type: Type;
@@ -52,12 +53,16 @@ export class FiberRootNode {
   container: Container;
   current: FiberNode;
   finishedWork: FiberNode | null;
+  pendingLanes: Lanes;
+  finishedLane: Lane;
 
   constructor(container: Container, fiber: FiberNode) {
     this.container = container;
     this.current = fiber;
     this.finishedWork = null;
     fiber.stateNode = this;
+    this.pendingLanes = NoLane;
+    this.finishedLane = NoLane;
   }
 }
 

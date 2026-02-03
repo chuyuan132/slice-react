@@ -1,18 +1,19 @@
 import reactDOM from '../../packages/react-dom';
+import { useState } from 'react';
 
 function Test() {
 
+  const [count, setCount] = useState(0);
 
   return (
-    <div>
-      <>
-        <ul>
-          <li key={1}>1</li>
-          <li key={2}>2</li>
-          <li key={3}>3</li>
-        </ul>
-      </>
-      <div>999</div>
+    <div onClick={() => {
+      setCount((count) => count + 1);
+      setCount((count) => count + 1);
+      setCount((count) => count + 1);
+      setCount((count) => count + 1);
+
+    }}>
+      {count}
     </div>
 
   );

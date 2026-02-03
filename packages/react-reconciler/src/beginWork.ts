@@ -4,6 +4,7 @@ import { processUpdateQueue, UpdateQueue } from './updateQueue';
 import { FunctionComponent, HostComponent, HostRoot, HostText, Fragment } from './workTags';
 import { mountChildFibers, reconcilerChildFibers } from './childFiber';
 import { renderWithHooks } from './fiberHooks';
+import { Lane } from './fiberLanes';
 
 /**
  * 递归中的递
@@ -12,17 +13,17 @@ import { renderWithHooks } from './fiberHooks';
  * @param fiber
  * @returns
  */
-export function beginWork(fiber: FiberNode) {
+export function beginWork(fiber: FiberNode, lane: Lane) {
   // 需要区分fiber的tag类型进行额外的处理
   switch (fiber.tag) {
     case HostRoot:
-      return updateHostRoot(fiber);
+      return updateHostRoot(fiber, lane);
     case HostComponent:
       return updateHostComponent(fiber);
     case HostText:
       return null;
     case FunctionComponent:
-      return updateFunctionComponent(fiber);
+      return updateFunctionComponent(fiber, lane);
     case Fragment:
       return updateFragment(fiber);
     default:
@@ -33,12 +34,12 @@ export function beginWork(fiber: FiberNode) {
   }
 }
 
-function updateHostRoot(fiber: FiberNode) {
+function updateHostRoot(fiber: FiberNode, lane: Lane) {
   // 计算状态的最新值
   const baseState = fiber.memoizedState;
   const updateQueue = fiber.updateQueue as UpdateQueue<ReactElementType>;
   const pending = updateQueue.share.pending;
-  const { memoizedState } = processUpdateQueue(baseState, pending);
+  const { memoizedState } = processUpdateQueue(baseState, pending, lane);
   fiber.memoizedState = memoizedState;
   updateQueue.share.pending = null;
   // 创造子fiber
@@ -61,9 +62,9 @@ function updateHostComponent(fiber: FiberNode) {
   return fiber.child;
 }
 
-function updateFunctionComponent(fiber: FiberNode) {
+function updateFunctionComponent(fiber: FiberNode, lane: Lane) {
   // 创造子fiber
-  const nextChildren = renderWithHooks(fiber);
+  const nextChildren = renderWithHooks(fiber, lane);
   reconclierChildren(fiber, nextChildren);
   return fiber.child;
 }

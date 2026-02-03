@@ -220,8 +220,6 @@ function ChildReconciler(shouldTrackEffect: boolean) {
   }
 
   return (returnFiber: FiberNode, currentFiber: FiberNode | null, element: any) => {
-    console.log('element', element);
-
     // 顶层fragment节点
     const isUnkeyedToTopLevelFragment =
       typeof element === 'object' && element !== null && element.type === REACT_FRAGEMENT_TYPE && element.key === null;

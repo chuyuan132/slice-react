@@ -2,6 +2,7 @@ import { FiberNode } from 'react-reconciler/src/fiber';
 import { HostText } from 'react-reconciler/src/workTags';
 import { updateFiberProps } from './syntheticEvent';
 import { Props } from 'shared/ReactTypes';
+import { scheduleSyncTask } from 'react-reconciler/src/syncTaskQueue';
 
 export type Container = Element;
 export type Instance = Element;
@@ -46,3 +47,10 @@ export const removeChild = (parentInstance: Container, child: Instance | TextIns
 export function insertChildToContainer(child: Instance, container: Container, before: Instance) {
   container.insertBefore(child, before);
 }
+
+export const scheduleMicroTask =
+  typeof queueMicrotask === 'function'
+    ? queueMicrotask
+    : typeof Promise === 'function'
+      ? (callback: (...args: any[]) => void) => Promise.resolve(null).then(callback)
+      : setTimeout;

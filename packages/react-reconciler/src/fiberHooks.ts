@@ -4,10 +4,12 @@ import { Dispatch, Dispatcher } from 'react/src/currentDispatcher';
 import { createUpdate, createUpdateQueue, enQueueUpdate, processUpdateQueue, UpdateQueue } from './updateQueue';
 import { Action } from 'shared/ReactTypes';
 import { scheduleUpdateOnFiber } from './workLoop';
+import { Lane, NoLane, requestUpdateLane } from './fiberLanes';
 
 let currentlyRenderFiber: FiberNode | null = null; // 当前正在执行的fiber
 let workInProgressHook: Hook<any> | null = null;
 let currentHook: Hook<any> | null = null;
+let renderLane: Lane = NoLane;
 interface Hook<T> {
   memoizedState: any;
   updateQueue: UpdateQueue<T> | null;
@@ -89,9 +91,12 @@ export function updateWorkInProgressHook<T>(): Hook<T> {
 }
 
 export function dispatchSetState<T>(fiber: FiberNode, updateQueue: UpdateQueue<T>, action: Action<T>) {
-  const update = createUpdate<T>(action);
+  console.log('dispatchSetState');
+
+  const lane = requestUpdateLane();
+  const update = createUpdate<T>(action, lane);
   enQueueUpdate(updateQueue, update);
-  scheduleUpdateOnFiber(fiber);
+  scheduleUpdateOnFiber(fiber, lane);
 }
 
 function mountState<T>(initialState: T | (() => T)): [T, Dispatch<T>] {
@@ -115,16 +120,17 @@ function updateState<T>(): [T, Dispatch<T>] {
   const queue = hook.updateQueue as UpdateQueue<T>;
   const pending = queue.share.pending;
   if (pending !== null) {
-    const { memoizedState } = processUpdateQueue<T>(hook.memoizedState, queue.share.pending);
+    const { memoizedState } = processUpdateQueue<T>(hook.memoizedState, queue.share.pending, renderLane);
     hook.memoizedState = memoizedState;
   }
   return [hook.memoizedState, hook.updateQueue?.dispatch as Dispatch<T>];
 }
 
-export function renderWithHooks(fiber: FiberNode) {
+export function renderWithHooks(fiber: FiberNode, lane: Lane) {
   currentlyRenderFiber = fiber;
   currentlyRenderFiber.memoizedState = null;
   const current = fiber.alternate;
+  renderLane = lane;
   if (current !== null) {
     // update
     internals.currentDispatcher.current = HookDispatcherOnUpdate();
@@ -139,5 +145,6 @@ export function renderWithHooks(fiber: FiberNode) {
   currentlyRenderFiber = null;
   workInProgressHook = null;
   currentHook = null;
+  renderLane = NoLane;
   return children;
 }

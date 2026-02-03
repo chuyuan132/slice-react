@@ -2,25 +2,27 @@ import { appendInitialChild, commitUpdate, Container, insertChildToContainer, In
 import { FiberNode, FiberRootNode } from './fiber';
 import { ChildDeletion, MutationMark, NotFlag, Placement, Update } from './fiberFlags';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
+import { markRootFinished, NoLane } from './fiberLanes';
 
-// 当进入commitWork流程的时候，说明beginWork和completeWork已经处理完成
-// beginWork负责往下探测，根据reactElementType生成/复用fiber节点且打上与结构相关的flags
-// 探测到底的时候，启动completeWork流程，处理本节点生成stateNode且打上更新的flags,然后判断是否有兄弟节点，有则重新启动beginWork流程，没有就返回上一层节点
-// 当走到commitWork流程的时候，在内存中已经生成一颗fiber树，DOM之间也互相挂载了。
-
-// 首屏渲染流程：
-/**
- * beginWork -> create children fiber -> no children -> completeWork self fiber -> sibling beginWork -> sibling completeWork -> no sibling sibling -> parent completeWork
- * 生成了一颗fiber树，只有hostRootFiber的child fiber 有placement标记，其他fiber没有，且stateNode之间已经互相挂载了
- */
 export function commitRoot(root: FiberRootNode) {
   const finishedWork = root.finishedWork;
+  const lane = root.finishedLane;
+
   if (finishedWork == null) {
     if (__DEV__) {
-      console.warn('commitWork: no finishedWork');
+      console.warn('commitRoot: no finishedWork');
     }
     return;
   }
+  if (lane === NoLane) {
+    if (__DEV__) {
+      console.warn('commitRoot: no lane');
+    }
+    return;
+  }
+  root.finishedWork = null;
+  root.finishedLane = NoLane;
+  markRootFinished(root, lane);
   const rootHasEffect = (finishedWork.flags & MutationMark) !== NotFlag;
   const subTreeHasEffect = (finishedWork.subTreeFlags & MutationMark) !== NotFlag;
   if (rootHasEffect || subTreeHasEffect) {
