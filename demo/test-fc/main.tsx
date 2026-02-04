@@ -10,7 +10,6 @@ function Test() {
       setCount((count) => count + 1);
       setCount((count) => count + 1);
       setCount((count) => count + 1);
-      setCount((count) => count + 1);
 
     }}>
       {count}

@@ -91,8 +91,6 @@ export function updateWorkInProgressHook<T>(): Hook<T> {
 }
 
 export function dispatchSetState<T>(fiber: FiberNode, updateQueue: UpdateQueue<T>, action: Action<T>) {
-  console.log('dispatchSetState');
-
   const lane = requestUpdateLane();
   const update = createUpdate<T>(action, lane);
   enQueueUpdate(updateQueue, update);
@@ -119,8 +117,9 @@ function updateState<T>(): [T, Dispatch<T>] {
   const hook = updateWorkInProgressHook<T>();
   const queue = hook.updateQueue as UpdateQueue<T>;
   const pending = queue.share.pending;
+  queue.share.pending = null;
   if (pending !== null) {
-    const { memoizedState } = processUpdateQueue<T>(hook.memoizedState, queue.share.pending, renderLane);
+    const { memoizedState } = processUpdateQueue<T>(hook.memoizedState, pending, renderLane);
     hook.memoizedState = memoizedState;
   }
   return [hook.memoizedState, hook.updateQueue?.dispatch as Dispatch<T>];
