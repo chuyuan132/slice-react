@@ -62,6 +62,8 @@ function performSyncWorkOnRoot(root: FiberRootNode, lane: Lane) {
     root.finishedWork = root.current.alternate;
     root.finishedLane = wipRootRenderLane;
     wipRootRenderLane = NoLane;
+    console.log('root.finishedWork', root.finishedWork);
+
     commitRoot(root);
   } catch (err) {
     if (__DEV__) {
@@ -73,7 +75,6 @@ function performSyncWorkOnRoot(root: FiberRootNode, lane: Lane) {
 // 无论是什么地方调度了scheduleUpdateOnFiber这个函数，都会把对应的lane记录到root的pendingLanes中，然后根据算法取出最高优先级的lane
 // 根据lane，执行宏微任务调度策略，如果重复执行performSyncWorkOnRoot，也要在performSyncWorkOnRoot里加一个逻辑，修复重复执行的问题，转而实现让ensureRootIsScheduled重新调度
 export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
-  console.log('scheduleUpdateOnFiber');
   const root = markUpdateFromFiberToRoot(fiber);
   markRootUpdated(root, lane);
   ensureRootIsScheduled(root);

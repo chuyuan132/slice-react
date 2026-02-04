@@ -7,6 +7,11 @@ export const useState: Dispatcher['useState'] = initialState => {
   return disPatcher.useState(initialState);
 };
 
+export const useEffect: Dispatcher['useEffect'] = (callback, deps) => {
+  const disPatcher = resolveDispatcher();
+  return disPatcher.useEffect(callback, deps);
+};
+
 // 对外导出 currentDispatcher 共享数据层
 export const __SECRET_INTERNAL_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = {
   currentDispatcher
@@ -15,4 +20,4 @@ export const version = '0.0.0';
 
 export const createElement = createElementFn;
 
-export const isValidElement = isValidElementFn
+export const isValidElement = isValidElementFn;

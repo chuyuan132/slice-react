@@ -26,6 +26,7 @@
     "@types/node": "^24.10.2",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
+    "@types/scheduler": "^0.26.0",
     "@vitejs/plugin-react": "^5.1.1",
     "babel-jest": "^29.7.0",
     "commitlint": "^20.2.0",
@@ -44,6 +45,7 @@
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-typescript2": "^0.36.0",
+    "scheduler": "^0.27.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1",
     "vite": "^7.2.4"
