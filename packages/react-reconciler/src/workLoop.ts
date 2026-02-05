@@ -4,7 +4,7 @@ import { completeWork } from './comleteWork';
 import { beginWork } from './beginWork';
 import { commitRoot } from './commitWork';
 import { getHighestPriorityLane, Lane, mergeLanes, NoLane, SyncLane } from './fiberLanes';
-import { flushSyncQueue, scheduleSyncTask } from './syncTaskQueue';
+import { flushSyncCallbacks, scheduleSyncTask } from './syncTaskQueue';
 import { scheduleMicroTask } from 'hostConfig';
 
 let workInProgress: FiberNode | null = null;
@@ -62,8 +62,6 @@ function performSyncWorkOnRoot(root: FiberRootNode, lane: Lane) {
     root.finishedWork = root.current.alternate;
     root.finishedLane = wipRootRenderLane;
     wipRootRenderLane = NoLane;
-    console.log('root.finishedWork', root.finishedWork);
-
     commitRoot(root);
   } catch (err) {
     if (__DEV__) {
@@ -80,7 +78,7 @@ export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
   ensureRootIsScheduled(root);
 }
 
-function ensureRootIsScheduled(root: FiberRootNode) {
+export function ensureRootIsScheduled(root: FiberRootNode) {
   const updateLane = getHighestPriorityLane(root.pendingLanes);
   if (updateLane === NoLane) {
     return;
@@ -88,7 +86,7 @@ function ensureRootIsScheduled(root: FiberRootNode) {
   if (updateLane === SyncLane) {
     // 推入微任务调度
     scheduleSyncTask(performSyncWorkOnRoot.bind(null, root, updateLane));
-    scheduleMicroTask(flushSyncQueue);
+    scheduleMicroTask(flushSyncCallbacks);
   } else {
     // 推入宏任务调度
     console.warn('推入宏任务调度，未实现');

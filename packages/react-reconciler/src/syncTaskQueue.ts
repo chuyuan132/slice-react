@@ -8,7 +8,7 @@ export function scheduleSyncTask(task: (...args: any[]) => void) {
   }
 }
 
-export function flushSyncQueue() {
+export function flushSyncCallbacks() {
   if (!isFlushingSyncQueue && syncQueue !== null) {
     isFlushingSyncQueue = true;
     try {
@@ -21,7 +21,7 @@ export function flushSyncQueue() {
     }
   } else {
     if (__DEV__) {
-      console.warn('flushSyncQueue: 批量更新任务正在执行中');
+      console.warn('flushSyncCallbacks: 批量更新任务正在执行中');
     }
   }
 }

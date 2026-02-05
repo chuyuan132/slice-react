@@ -18,7 +18,9 @@ interface Hook<T> {
   next: Hook<T> | null;
 }
 
-export type EffectCallback = () => void;
+export type EffectCallback = () => void | (() => void);
+
+type HookDeps = any[] | null;
 
 export interface EffectHook {
   tag: Flag;
@@ -46,7 +48,39 @@ function HookDispatcherOnUpdate(): Dispatcher {
   };
 }
 
-function updateEffect() {}
+function areHookInputsEqual(nextDeps: HookDeps, prevDeps: HookDeps) {
+  if (prevDeps === null || nextDeps === null) {
+    return false;
+  }
+  for (let i = 0; i < prevDeps.length && i < nextDeps.length; i++) {
+    if (Object.is(prevDeps[i], nextDeps[i])) {
+      continue;
+    }
+    return false;
+  }
+  return true;
+}
+
+function updateEffect(create: EffectCallback, deps: HookDeps) {
+  const hook = updateWorkInProgressHook();
+  const nextDeps = deps === undefined ? null : deps;
+  let destroy: EffectCallback | null = null;
+  if (currentHook !== null) {
+    const prevEffect = currentHook.memoizedState;
+    destroy = prevEffect.destroy;
+    if (nextDeps !== null) {
+      // 浅比较依赖
+      const prevDeps = prevEffect.deps;
+      if (areHookInputsEqual(nextDeps, prevDeps)) {
+        hook.memoizedState = pushEffect(Passive, create, destroy, nextDeps);
+        return;
+      }
+    }
+    // 浅比较 不相等
+    (currentlyRenderFiber as FiberNode).flags |= PassiveEffect;
+    hook.memoizedState = pushEffect(Passive | HookHasEffect, create, destroy, nextDeps);
+  }
+}
 
 export function mountWorkInProgressHook<T>(): Hook<T> {
   const Hook = {
@@ -139,7 +173,7 @@ function createFCUpdateQueue<T>(): FCUpdateQueue<T> {
   return queue;
 }
 
-function mountEffect<T>(create: EffectCallback, deps: any[] | null | undefined) {
+function mountEffect<T>(create: EffectCallback, deps: HookDeps) {
   if (!(create instanceof Function)) {
     throw new Error('Effect create must be a function');
   }
@@ -194,6 +228,7 @@ function updateState<T>(): [T, Dispatch<T>] {
 export function renderWithHooks(fiber: FiberNode, lane: Lane) {
   currentlyRenderFiber = fiber;
   currentlyRenderFiber.memoizedState = null;
+  currentlyRenderFiber.updateQueue = null;
   const current = fiber.alternate;
   renderLane = lane;
   if (current !== null) {
@@ -206,8 +241,6 @@ export function renderWithHooks(fiber: FiberNode, lane: Lane) {
 
   const pendingProps = fiber.pendingProps;
   const Component = fiber.type;
-  console.log('[首屏渲染]查看hook链表', currentlyRenderFiber);
-
   const children = Component(pendingProps);
   currentlyRenderFiber = null;
   workInProgressHook = null;

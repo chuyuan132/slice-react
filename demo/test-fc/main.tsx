@@ -3,14 +3,22 @@ import { useState, useEffect } from 'react';
 
 function Test() {
 
+  const [num, setNum] = useState(1);
 
   useEffect(() => {
     console.log('father');
   }, []);
 
+  useEffect(() => {
+    console.log('num change', num);
+    return () => {
+      console.log('num change unmount');
+    };
+  }, [num]);
+
   return (
-    <div >
-      <Child />
+    <div onClick={() => setNum(num - 1)}>
+      {num > 0 && <Child />}
     </div>
 
   );
@@ -20,6 +28,9 @@ function Test() {
 function Child() {
   useEffect(() => {
     console.log('children');
+    return () => {
+      console.log('children unmount');
+    };
   }, []);
 
   return (

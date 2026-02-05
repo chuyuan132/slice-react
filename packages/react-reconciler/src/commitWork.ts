@@ -1,12 +1,26 @@
 import { appendInitialChild, commitUpdate, Container, insertChildToContainer, Instance, removeChild } from 'hostConfig';
 import { FiberNode, FiberRootNode, PendingPassiveEffects } from './fiber';
-import { ChildDeletion, MutationMark, NotFlag, PassiveEffect, PassiveMark, Placement, Update } from './fiberFlags';
+import {
+  ChildDeletion,
+  Flag,
+  MutationMark,
+  NotFlag,
+  PassiveEffect,
+  PassiveMark,
+  Placement,
+  Update
+} from './fiberFlags';
 import { FunctionComponent, HostComponent, HostRoot, HostText } from './workTags';
 import { markRootFinished, NoLane } from './fiberLanes';
-import { FCUpdateQueue } from './fiberHooks';
+import { EffectHook, FCUpdateQueue } from './fiberHooks';
 import { unstable_scheduleCallback, unstable_NormalPriority } from 'scheduler';
+import { ensureRootIsScheduled } from './workLoop';
+import { HookHasEffect, Passive } from './effectHookTags';
+import { flushSyncCallbacks } from './syncTaskQueue';
 
 let rootDoesHasPassiveEffects = false;
+
+// 不可中断的
 export function commitRoot(root: FiberRootNode) {
   const finishedWork = root.finishedWork;
   const lane = root.finishedLane;
@@ -33,7 +47,7 @@ export function commitRoot(root: FiberRootNode) {
       rootDoesHasPassiveEffects = true;
       unstable_scheduleCallback(unstable_NormalPriority, () => {
         // 执行副作用
-        // todo:重置rootDoesHasPassiveEffects
+        flushPassiveEffects(root.pendingPassiveEffects);
         return;
       });
     }
@@ -51,14 +65,66 @@ export function commitRoot(root: FiberRootNode) {
   } else {
     root.current = finishedWork;
   }
+  rootDoesHasPassiveEffects = false;
+  // 兜底，当前这轮更新完成后，再次调度，可以实现连续的更新
+  ensureRootIsScheduled(root);
 }
 
 let nextEffect: FiberNode | null = null;
+
+function flushPassiveEffects(pendingPassiveEffects: PendingPassiveEffects) {
+  pendingPassiveEffects.unmount.forEach(effect => {
+    commitHookEffectListUnmount(Passive, effect);
+  });
+  pendingPassiveEffects.unmount = [];
+  pendingPassiveEffects.update.forEach(effect => {
+    commitHookEffectListDestroy(Passive | HookHasEffect, effect);
+  });
+  pendingPassiveEffects.update.forEach(effect => {
+    commitHookEffectListCreate(Passive | HookHasEffect, effect);
+  });
+  pendingPassiveEffects.update = [];
+  flushSyncCallbacks();
+}
+
+function commitHookEffectListUnmount(flag: Flag, lastEffect: EffectHook) {
+  commitHookEffectList(flag, lastEffect, (effect: EffectHook) => {
+    effect?.destroy?.();
+    effect.tag &= ~HookHasEffect;
+  });
+}
+
+function commitHookEffectListDestroy(flag: Flag, lastEffect: EffectHook) {
+  commitHookEffectList(flag, lastEffect, (effect: EffectHook) => {
+    effect?.destroy?.();
+  });
+}
+
+function commitHookEffectListCreate(flag: Flag, lastEffect: EffectHook) {
+  commitHookEffectList(flag, lastEffect, (effect: EffectHook) => {
+    const destroy = effect.create();
+    destroy && (effect.destroy = destroy);
+  });
+}
+
+// 新增一个遍历环形链表的处理函数
+function commitHookEffectList(flags: Flag, lastEffect: EffectHook, callback: (effect: EffectHook) => void) {
+  let headPointer = lastEffect.next;
+  do {
+    if (headPointer !== null) {
+      if ((headPointer.tag & flags) === flags) {
+        callback(headPointer);
+      }
+      headPointer = headPointer.next;
+    }
+  } while (headPointer !== lastEffect.next);
+}
+
 function commitMutationEffects(finishedWork: FiberNode, root: FiberRootNode) {
   nextEffect = finishedWork;
   while (nextEffect !== null) {
     const child: FiberNode | null = nextEffect.child;
-    if (nextEffect && (nextEffect.subTreeFlags & MutationMark) !== NotFlag) {
+    if (nextEffect && (nextEffect.subTreeFlags & (MutationMark | PassiveMark)) !== NotFlag) {
       nextEffect = child;
     } else {
       // 如果没有子树或者子树上没有标记了，那就对当前节点处理标记
@@ -99,6 +165,7 @@ function commitMutationEffectsOnFiber(finishedWork: FiberNode, root: FiberRootNo
   }
 }
 
+// update unmount
 function commitPassiveEffect(finishedWork: FiberNode, root: FiberRootNode, type: keyof PendingPassiveEffects) {
   if (
     finishedWork.tag !== FunctionComponent ||
