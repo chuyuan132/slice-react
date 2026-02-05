@@ -1,5 +1,5 @@
 import { FiberNode } from 'react-reconciler/src/fiber';
-import { HostText } from 'react-reconciler/src/workTags';
+import { HostComponent, HostText } from 'react-reconciler/src/workTags';
 import { updateFiberProps } from './syntheticEvent';
 import { Props } from 'shared/ReactTypes';
 export type Container = Element;
@@ -27,6 +27,8 @@ export const commitUpdate = (fiber: FiberNode) => {
       const text = fiber.memoizedProps.content;
       commitTextUpdate(fiber.stateNode, text);
       break;
+    case HostComponent:
+      updateFiberProps(fiber.stateNode, fiber.memoizedProps);
     default:
       if (__DEV__) {
         console.warn('未实现的更新类型');
