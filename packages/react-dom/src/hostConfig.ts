@@ -2,8 +2,6 @@ import { FiberNode } from 'react-reconciler/src/fiber';
 import { HostText } from 'react-reconciler/src/workTags';
 import { updateFiberProps } from './syntheticEvent';
 import { Props } from 'shared/ReactTypes';
-import { scheduleSyncTask } from 'react-reconciler/src/syncTaskQueue';
-
 export type Container = Element;
 export type Instance = Element;
 export type TextInstance = Text;

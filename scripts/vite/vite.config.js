@@ -22,10 +22,21 @@ export default defineConfig({
         find: 'react-dom',
         replacement: resolvePkgPath('react-dom')
       },
+      // 脱离宿主环境测试
+      {
+        find: 'react-noop-renderer',
+        replacement: resolvePkgPath('react-noop-renderer')
+      },
       {
         find: 'hostConfig',
-        replacement: path.resolve(resolvePkgPath('react-dom'), './src/hostConfig.ts')
+        replacement: path.resolve(resolvePkgPath('react-noop-renderer'), './src/hostConfig.ts')
       }
+      // 在浏览器环境下测试
+
+      // {
+      //   find: 'hostConfig',
+      //   replacement: path.resolve(resolvePkgPath('react-dom'), './src/hostConfig.ts')
+      // }
     ]
   }
 });

@@ -1,4 +1,11 @@
-import { appendInitialChild, commitUpdate, Container, insertChildToContainer, Instance, removeChild } from 'hostConfig';
+import {
+  appendChildToContainer,
+  commitUpdate,
+  Container,
+  insertChildToContainer,
+  Instance,
+  removeChild
+} from 'hostConfig';
 import { FiberNode, FiberRootNode, PendingPassiveEffects } from './fiber';
 import {
   ChildDeletion,
@@ -268,7 +275,7 @@ function commitPlacement(finishedWork: FiberNode) {
   const hostParent = getHostParent(finishedWork);
   const hostSibling = getHostSibling(finishedWork);
   if (hostParent !== null) {
-    appendPlacementNodeInToContainer(finishedWork, hostParent, hostSibling);
+    insertOrAppendPlacementNodeIntoContainer(finishedWork, hostParent, hostSibling);
   }
 }
 
@@ -323,21 +330,21 @@ function getHostParent(fiber: FiberNode) {
   return null;
 }
 
-function appendPlacementNodeInToContainer(finishedWork: FiberNode, hostParent: Container, before?: Instance) {
+function insertOrAppendPlacementNodeIntoContainer(finishedWork: FiberNode, hostParent: Container, before?: Instance) {
   if (finishedWork.tag === HostComponent || finishedWork.tag === HostText) {
     if (before) {
       insertChildToContainer(finishedWork.stateNode, hostParent, before);
     } else {
-      appendInitialChild(hostParent, finishedWork.stateNode);
+      appendChildToContainer(hostParent, finishedWork.stateNode);
     }
     return;
   }
   const child = finishedWork.child;
   if (child !== null) {
-    appendPlacementNodeInToContainer(child, hostParent, before);
+    insertOrAppendPlacementNodeIntoContainer(child, hostParent, before);
     let sibling = child.sibling;
     while (sibling !== null) {
-      appendPlacementNodeInToContainer(sibling, hostParent, before);
+      insertOrAppendPlacementNodeIntoContainer(sibling, hostParent, before);
       sibling = sibling.sibling;
     }
   }

@@ -3,10 +3,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
-    "lib": [
-      "ESNext",
-      "DOM"
-    ],
+    "lib": ["ESNext", "DOM"],
     "jsx": "react-jsx",
     // 关键：指定 JSX 编译模式（React 17+ 推荐）
     "jsxImportSource": "react",
@@ -24,9 +21,7 @@
     "skipLibCheck": true,
     "baseUrl": "./packages",
     "paths": {
-      "hostConfig": [
-        "./react-dom/src/hostConfig.ts"
-      ]
+      "hostConfig": ["./react-dom/src/hostConfig.ts"]
     }
   }
 }
