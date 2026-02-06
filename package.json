@@ -45,7 +45,7 @@
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-typescript2": "^0.36.0",
-    "scheduler": "^0.27.0",
+    "scheduler": "^0.23.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1",
     "vite": "^7.2.4"
