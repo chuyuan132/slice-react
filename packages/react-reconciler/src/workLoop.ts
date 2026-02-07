@@ -6,12 +6,7 @@ import { commitRoot, flushPassiveEffects } from './commitWork';
 import { getHighestPriorityLane, Lane, lanesToSchedulerPriority, mergeLanes, NoLane, SyncLane } from './fiberLanes';
 import { flushSyncCallbacks, scheduleSyncTask } from './syncTaskQueue';
 import { scheduleMicroTask } from 'hostConfig';
-import {
-  unstable_cancelCallback,
-  unstable_getFirstCallbackNode,
-  unstable_scheduleCallback,
-  unstable_shouldYield
-} from 'scheduler';
+import { unstable_cancelCallback, unstable_scheduleCallback, unstable_shouldYield } from 'scheduler';
 
 let workInProgress: FiberNode | null = null;
 // 记录render的优先级
@@ -72,7 +67,7 @@ export function scheduleUpdateOnFiber(fiber: FiberNode, lane: Lane) {
 
 export function ensureRootIsScheduled(root: FiberRootNode) {
   const updateLane = getHighestPriorityLane(root.pendingLanes);
-  const cnode = unstable_getFirstCallbackNode();
+  const cnode = root.callbackNode;
   // 如果取不到优先级了，直接return
   if (updateLane === NoLane) {
     if (cnode !== null) {
@@ -90,6 +85,7 @@ export function ensureRootIsScheduled(root: FiberRootNode) {
 
   // 更高优先级
   cnode && unstable_cancelCallback(cnode);
+  let newCallbackNode = null;
 
   if (updateLane === SyncLane) {
     // 同步优先级，用微任务调度
@@ -98,13 +94,10 @@ export function ensureRootIsScheduled(root: FiberRootNode) {
   } else {
     // 其他优先级，用宏任务调度
     const schedulerPriority = lanesToSchedulerPriority(updateLane);
-    const callbackNode = unstable_scheduleCallback(
-      schedulerPriority,
-      performConcurrentWorkOnRoot.bind(null, root, false)
-    );
-    root.callbackNode = callbackNode;
-    root.callbackPriority = updateLane;
+    newCallbackNode = unstable_scheduleCallback(schedulerPriority, performConcurrentWorkOnRoot.bind(null, root, false));
   }
+  root.callbackNode = newCallbackNode;
+  root.callbackPriority = updateLane;
 }
 
 // render + commit 同步处理函数
