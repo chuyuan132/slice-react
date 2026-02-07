@@ -79,19 +79,24 @@ export function commitRoot(root: FiberRootNode) {
 
 let nextEffect: FiberNode | null = null;
 
-function flushPassiveEffects(pendingPassiveEffects: PendingPassiveEffects) {
+export function flushPassiveEffects(pendingPassiveEffects: PendingPassiveEffects) {
+  let didFlushPassiveEffects = false;
   pendingPassiveEffects.unmount.forEach(effect => {
+    didFlushPassiveEffects = true;
     commitHookEffectListUnmount(Passive, effect);
   });
   pendingPassiveEffects.unmount = [];
   pendingPassiveEffects.update.forEach(effect => {
+    didFlushPassiveEffects = true;
     commitHookEffectListDestroy(Passive | HookHasEffect, effect);
   });
   pendingPassiveEffects.update.forEach(effect => {
+    didFlushPassiveEffects = true;
     commitHookEffectListCreate(Passive | HookHasEffect, effect);
   });
   pendingPassiveEffects.update = [];
   flushSyncCallbacks();
+  return didFlushPassiveEffects;
 }
 
 function commitHookEffectListUnmount(flag: Flag, lastEffect: EffectHook) {
