@@ -103,7 +103,10 @@ export function ensureRootIsScheduled(root: FiberRootNode) {
 // render + commit 同步处理函数
 function performSyncWorkOnRoot(root: FiberRootNode) {
   const updateLane = getHighestPriorityLane(root.pendingLanes);
-  if (updateLane === NoLane) {
+
+  // todo: 有问题
+  if (updateLane !== SyncLane) {
+    ensureRootIsScheduled(root);
     return;
   }
   // 执行render
